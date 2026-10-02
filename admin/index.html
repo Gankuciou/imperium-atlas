@@ -49,7 +49,7 @@ button{background:#211b13;border:1px solid #715832;color:#dec99c;padding:7px 9px
 <div class="wide"><label>ФЛОТ</label><textarea id="edFleet" rows="2" placeholder="Например: 1 линкор, 4 крейсера, 12 эсминцев"></textarea></div>
 <div class="wide"><label>АРХИВНОЕ ОПИСАНИЕ</label><textarea id="edDesc" rows="3"></textarea></div>
 </div><div class="row"><button class="gold" id="apply">Применить изменения</button><button id="add">Новая система</button></div><div class="row"><button class="danger" id="del">Удалить</button><button id="duplicate">Дублировать</button></div>
-<p class="help">Изменения сохраняются при нажатии «Сохранить». Для публикации онлайн разместите папку проекта на GitHub Pages или Netlify; инструкция — в README.</p></div>
+<p class="help">«Сохранить» записывает изменения только в этот браузер. Чтобы показать игрокам обновлённые системы, флоты и битвы: нажмите «Экспорт JSON», затем загрузите полученный файл atlas-data.json в корень репозитория GitHub, заменив прежний файл. Игровая карта прочитает опубликованный архив автоматически.</p></div>
 </aside></main>
 <script>
 const legions=[
@@ -292,7 +292,7 @@ function add(){systems.push({name:'Новый Санктус Терра',owner:'
 function persistMarkers(){if(!EDIT_MODE)return;localStorage.setItem(STORAGE_KEY,JSON.stringify({systems,markers}))}
 function save(){if(!EDIT_MODE)return;localStorage.setItem(STORAGE_KEY,JSON.stringify({systems,markers}));toast('Карта и отметки сохранены в этом браузере')}
 function load(){if(!EDIT_MODE)return;try{let x=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(!x)throw 0;systems=Array.isArray(x)?x:x.systems;markers=Array.isArray(x.markers)?x.markers:[];if(!Array.isArray(systems))throw 0;selected=-1;refresh();toast('Карта и отметки загружены')}catch(e){toast('Сохранение не найдено')}}
-function exportFile(){let b=new Blob([JSON.stringify({title:'Атлас Империума',version:6,systems,markers},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='atlas-imperium.json';a.click();URL.revokeObjectURL(a.href)}
+function exportFile(){let b=new Blob([JSON.stringify({title:'Атлас Империума',version:6,systems,markers},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='atlas-data.json';a.click();URL.revokeObjectURL(a.href)}
 function importFile(f){let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);systems=Array.isArray(d)?d:d.systems;markers=Array.isArray(d.markers)?d.markers:[];if(!Array.isArray(systems))throw 0;selected=-1;refresh();toast('Архив карты и отметок импортирован')}catch(e){toast('Ошибка формата JSON')}};r.readAsText(f)}
 canvas.addEventListener('mousedown',e=>{drag=true;moved=false;last={x:e.clientX,y:e.clientY};canvas.classList.add('drag')});window.addEventListener('mouseup',()=>{drag=false;canvas.classList.remove('drag')});window.addEventListener('mousemove',e=>{if(drag){let dx=e.clientX-last.x,dy=e.clientY-last.y;if(Math.abs(dx)+Math.abs(dy)>2)moved=true;panX+=dx;panY+=dy;last={x:e.clientX,y:e.clientY};draw()}});
 canvas.addEventListener('click',e=>{if(moved)return;let r=canvas.getBoundingClientRect(),screen={x:e.clientX-r.left,y:e.clientY-r.top},world=screenToWorld(screen);
