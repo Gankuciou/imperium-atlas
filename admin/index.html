@@ -164,7 +164,7 @@ function draw(){
  ctx.strokeStyle='rgba(190,158,102,.28)';ctx.lineWidth=1/scale;ctx.stroke();
  // Контуры шести скоплений неизведанных миров.
  const rimClusters=[{name:'ПРЕДЕЛ НЕМОТЫ',x:-.78,y:-.61},{name:'ТУМАННЫЕ РУБЕЖИ',x:0,y:-.75},{name:'ПУСТОШЬ ОРИОНА',x:.78,y:-.61},{name:'ПЕПЕЛЬНЫЙ КРАЙ',x:-.78,y:.60},{name:'БЕЗМОЛВНАЯ ДУГА',x:0,y:.75},{name:'ЗАБЫТЫЙ ПРЕДЕЛ',x:.78,y:.60}];
- rimClusters.forEach(cluster=>{const q=p(cluster);ctx.save();ctx.setLineDash([5/scale,4/scale]);ctx.beginPath();ctx.ellipse(q.x,q.y,Math.min(W,H)*.095,Math.min(W,H)*.075,-.25,0,Math.PI*2);ctx.strokeStyle='rgba(190,190,170,.7)';ctx.lineWidth=1.4/scale;ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#c5c2ad';ctx.font='600 '+(9/scale)+'px Cinzel';ctx.textAlign='center';ctx.fillText(cluster.name,q.x,q.y-Math.min(W,H)*.085);ctx.restore()});
+ rimClusters.forEach(cluster=>{const q=p(cluster);ctx.save();ctx.setLineDash([5/scale,4/scale]);ctx.beginPath();ctx.ellipse(q.x,q.y,Math.min(W,H)*.095,Math.min(W,H)*.075,-.25,0,Math.PI*2);ctx.strokeStyle='rgba(190,190,170,.7)';ctx.lineWidth=1.4/scale;ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#c5c2ad';ctx.font='600 '+(11/scale)+'px Cinzel';ctx.textAlign='center';ctx.fillText(cluster.name,q.x,q.y-Math.min(W,H)*.085);ctx.restore()});
  // Терра — отдельный суверенный центр Императора.
  let terra=systems.find(s=>s.name==='Терра');if(terra){let q=p(terra);ctx.beginPath();ctx.arc(q.x,q.y,22,0,Math.PI*2);ctx.strokeStyle='#e0bd70';ctx.lineWidth=2;ctx.stroke();ctx.beginPath();ctx.arc(q.x,q.y,28,0,Math.PI*2);ctx.strokeStyle='rgba(224,189,112,.35)';ctx.lineWidth=1;ctx.stroke()}
  // Схематические связи между соседними системами; каждое ребро рисуется только один раз.
@@ -193,7 +193,7 @@ function draw(){
   });
  }
  // Флоты и сражения — отдельные картографические отметки.
- markers.forEach(m=>{const q=p(m);ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`bold ${15/scale}px sans-serif`;ctx.fillStyle=m.type==='battle'?'#e16b61':'#e4c477';ctx.shadowColor='#080a0d';ctx.shadowBlur=5/scale;ctx.fillText(m.type==='battle'?'⚔':'⚓',q.x,q.y);ctx.font=`${10/scale}px Cinzel`;ctx.fillStyle='#f0dfbd';ctx.fillText(m.name,q.x,q.y-13/scale);ctx.restore()});
+ markers.forEach(m=>{const q=p(m);ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`bold ${15/scale}px sans-serif`;ctx.fillStyle=m.type==='battle'?'#e16b61':'#e4c477';ctx.shadowColor='#080a0d';ctx.shadowBlur=5/scale;ctx.fillText(m.type==='battle'?'⚔':'⚓',q.x,q.y);ctx.font=`${12/scale}px Cinzel`;ctx.fillStyle='#f0dfbd';ctx.fillText(m.name,q.x,q.y-13/scale);ctx.restore()});
  ctx.restore();
  // Подписи рисуются поверх карты в экранных координатах: их размер не зависит от зума.
  // Простая проверка коллизий не позволяет тексту перекрывать уже размещённые подписи.
@@ -205,13 +205,14 @@ function draw(){
   labelCandidates.forEach(item=>{
    const q=screenP(item.s);
    if(q.x<-30||q.x>W+30||q.y<-20||q.y>H+20)return;
-   const font=item.isCapital?'700 8px Cinzel':'7px Cinzel';
+   const font=item.isCapital?'700 12px Cinzel':'10px Cinzel';
    ctx.font=font;
-   const width=ctx.measureText(item.text).width,height=item.isCapital?10:8;
-   const gap=5,placements=[
-    {x:q.x+gap,y:q.y-7},{x:q.x+gap,y:q.y+9},
-    {x:q.x-width-gap,y:q.y-7},{x:q.x-width-gap,y:q.y+9},
-    {x:q.x+gap,y:q.y-19},{x:q.x-width-gap,y:q.y-19}
+   const metrics=ctx.measureText(item.text),width=metrics.width;
+   const height=Math.max(item.isCapital?14:12,(metrics.actualBoundingBoxAscent||8)+(metrics.actualBoundingBoxDescent||3));
+   const gap=7,placements=[
+    {x:q.x+gap,y:q.y-9},{x:q.x+gap,y:q.y+13},
+    {x:q.x-width-gap,y:q.y-9},{x:q.x-width-gap,y:q.y+13},
+    {x:q.x+gap,y:q.y-25},{x:q.x-width-gap,y:q.y-25}
    ];
    for(const pos of placements){
     const box={left:pos.x-2,right:pos.x+width+2,top:pos.y-height/2-2,bottom:pos.y+height/2+2};
