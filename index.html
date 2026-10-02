@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Атлас Империума — Великий крестовый поход | редакция IV</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Crimson+Text:wght@400;600;700&display=swap');
+:root{--gold:#c9aa70;--edge:#725832;--bg:#070a0f;--panel:#11151b;--text:#e5d9c0;--muted:#98886b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:'Crimson Text',serif;overflow:hidden}
+header{height:70px;display:flex;justify-content:space-between;align-items:center;padding:8px 18px;border-bottom:1px solid var(--edge);background:linear-gradient(90deg,#090c11,#21190f,#090c11);position:relative;z-index:5}
+.brand{font:700 19px Cinzel,serif;letter-spacing:2px;color:var(--gold)}.sub,.headright{font:10px Cinzel;letter-spacing:1.5px;color:#9d8964}.headright{text-align:right}
+main{height:calc(100vh - 70px);display:grid;grid-template-columns:260px minmax(300px,1fr) 320px}
+aside{overflow:auto;padding:13px;background:linear-gradient(#17191c,#0b0e12);border-right:1px solid #59472d}aside.right{border:0;border-left:1px solid #59472d}
+h2{font:600 12px Cinzel;color:var(--gold);letter-spacing:1.5px;margin:4px 0 10px}.section{border-bottom:1px solid #493a25;padding-bottom:12px;margin-bottom:13px}
+input,select,textarea{width:100%;min-width:0;background:#090c10;color:var(--text);border:1px solid #665333;padding:7px;font:14px 'Crimson Text'}input[type=checkbox]{width:auto;accent-color:#b38b4e}
+button{background:#211b13;border:1px solid #715832;color:#dec99c;padding:7px 9px;font:10px Cinzel;cursor:pointer}button:hover{background:#49351c;color:#fff0c8}.row{display:flex;gap:6px;margin:6px 0}.row>*{flex:1}.danger{border-color:#88453c;color:#e2a49a}.gold{background:#4b361a}
+.legions{display:grid;gap:3px}.legion{display:flex;align-items:center;gap:7px;padding:5px;border:1px solid transparent;cursor:pointer;font-size:13px}.legion:hover,.legion.on{background:#2b2419;border-color:#725a34}.swatch{width:11px;height:11px;border:1px solid #d9c9a5;flex:none}
+#mapWrap{position:relative;overflow:hidden;background:radial-gradient(ellipse at center,#1b202a,#080d15 65%,#05070a)}canvas{width:100%;height:100%;display:block;cursor:grab}canvas.drag{cursor:grabbing}
+.mapcap,.mapfoot{position:absolute;left:16px;pointer-events:none;color:#b49a69;font:10px Cinzel;letter-spacing:1.5px;text-shadow:0 1px 5px #000}.mapcap{top:14px}.mapfoot{bottom:12px;color:#817257;font-size:9px}
+#info{font-size:15px;line-height:1.35}.seal{border:1px solid #72572f;padding:10px;text-align:center;background:linear-gradient(135deg,#211a11,#0b1016);margin-bottom:10px}.sig{font:29px Cinzel;color:var(--gold)}.sysname{font:600 14px Cinzel;color:#e3ca91;letter-spacing:.8px}.muted,.help{color:#9d8d70;font-size:12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}.cell{background:#090d11;border:1px solid #3e3324;padding:7px;font-size:13px;overflow-wrap:anywhere}.cell b{display:block;color:#a99161;font:9px Cinzel;margin-bottom:3px}.editorgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.editorgrid .wide{grid-column:1/-1}.editorgrid label{display:block;font:9px Cinzel;color:#a99369;margin-bottom:3px}.help{font-size:11px;line-height:1.4}#count{font:10px Cinzel;color:#9e8d6b;margin-top:6px}#toast{position:absolute;right:18px;bottom:30px;background:#211a11;border:1px solid #8c6a36;padding:8px 12px;color:#e5d2a8;opacity:0;transition:.2s;pointer-events:none}
+@media(max-width:1000px){main{grid-template-columns:220px 1fr}.right{display:none}}@media(max-width:650px){header{height:60px}.headright{display:none}main{height:calc(100vh - 60px);grid-template-columns:1fr}aside.left{position:absolute;z-index:4;top:60px;bottom:0;width:240px;transform:translateX(-100%);transition:.2s}aside.left.open{transform:translateX(0)}}
+
+.system-list{max-height:245px;overflow:auto;margin-top:8px;border-top:1px solid #3e3427;padding-top:5px}
+.system-entry{display:flex;align-items:center;gap:7px;width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid #29251f;color:#cfc2a8;padding:6px 5px;font:12px 'Crimson Text',serif;cursor:pointer}
+.system-entry:hover,.system-entry.selected{background:#302719;color:#f3d99e}
+.system-entry .entry-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.system-entry .entry-owner{font:9px Cinzel;color:#9d8964}
+.system-entry .entry-star{color:#e5c477;font-size:13px}
+.capital-note{border:1px solid #b89555;background:linear-gradient(90deg,rgba(170,130,65,.2),rgba(30,25,17,.3));padding:8px;margin:9px 0;color:#f0d18b;font:11px Cinzel;letter-spacing:.6px}
+.capital-note small{color:#c8b994;font:11px 'Crimson Text',serif;letter-spacing:0}
+</style></head><body>
+<header><div><div class="brand">✠ АТЛАС ИМПЕРИУМА</div><div class="sub">АСТРОГРАФИЧЕСКИЙ РЕЕСТР · ВЕЛИКИЙ КРЕСТОВЫЙ ПОХОД · М30</div></div><div class="headright">АДМИНИСТРАТУМ · КАРТА КЛАССА СИГМА<br>ВЛАДЕНИЕ ИМПЕРАТОРА ОТМЕЧЕНО ЗОЛОТОМ</div></header>
+<main>
+<aside class="left" id="left"><div class="section"><h2>Реестр звёздных систем</h2><input id="search" placeholder="Поиск по названию…"><div class="row"><button id="reset">Обзор галактики</button><button id="routes" class="gold">Связи: вкл.</button></div><div id="count">344 СИСТЕМЫ</div><div id="systemList" class="system-list" aria-label="Список звёздных систем"></div></div>
+<div class="section"><h2>Легионы Астартес</h2><div class="legions" id="legionList"></div></div>
+<div class="section"><h2>Слои карты</h2><label><input id="territory" type="checkbox" checked> Владения и границы</label><br><label><input id="stars" type="checkbox" checked> Звёздные системы</label><br><label><input id="names" type="checkbox" checked> Подписи систем</label><br><label><input id="capitals" type="checkbox" checked> Столичные миры легионов</label></div>
+<div class="section"><h2>Архив карт</h2><div class="row"><button id="save">Сохранить</button><button id="load">Загрузить</button></div><div class="row"><button id="export">Экспорт JSON</button><button id="import">Импорт JSON</button></div><input type="file" id="file" accept=".json,application/json" hidden></div>
+<p class="help">Распределение владений и большая часть названий — авторская реконструкция для игрового использования. Терра и система Сол выделены в отдельное владение Императора.</p></aside>
+<div id="mapWrap"><div class="mapcap">TERRA · DOMINIUM IMPERATORIS · SEGMENTA IMPERIALIS</div><canvas id="map"></canvas><div class="mapfoot">ЛКМ — ВЫБОР СИСТЕМЫ · РЕЕСТР СЛЕВА — ПОИСК И ВЫБОР · ПЕРЕТАСКИВАНИЕ — ПЕРЕМЕЩЕНИЕ · КОЛЁСИКО — МАСШТАБ</div><div id="toast"></div></div>
+<aside class="right"><h2>Астрографическое досье</h2><div id="info"><p class="muted">Выберите звёздную систему.</p></div>
+<div class="section" style="margin-top:14px"><h2>Редактор выбранной системы</h2><div class="editorgrid">
+<div class="wide"><label>НАЗВАНИЕ СИСТЕМЫ</label><input id="edName"></div>
+<div class="wide"><label>ВЛАДЕЛЕЦ</label><select id="edOwner"></select></div>
+<div class="wide"><label>СТОЛИЦА ЛЕГИОНА</label><select id="edCapitalOf"><option value="">Не является столицей</option></select></div>
+<div class="wide"><label>ТИП ПЛАНЕТЫ / СИСТЕМЫ</label><select id="edType"><option>Терра-класс</option><option>Мир-кузница</option><option>Мир-крепость</option><option>Агромир</option><option>Улей-мир</option><option>Шахтёрский мир</option><option>Мир-склеп</option><option>Священный мир</option><option>Джунглевый мир</option><option>Ледяной мир</option><option>Пустынный мир</option><option>Вулканический мир</option><option>Демонический мир</option><option>Необитаемый мир</option><option>Звёздная крепость</option><option>Административный мир</option><option>Океанический мир</option><option>Радиационный мир</option><option>Промышленный мир</option><option>Пограничный мир</option><option>Исследовательский мир</option></select></div>
+<div><label>КООРДИНАТА X</label><input id="edX" type="number" min="-1" max="1" step=".01"></div><div><label>КООРДИНАТА Y</label><input id="edY" type="number" min="-1" max="1" step=".01"></div>
+<div class="wide"><label>ПРОИЗВОДСТВО</label><textarea id="edProd" rows="2" placeholder="Например: 12 млн тонн стали / год; 4 млн единиц боеприпасов"></textarea></div>
+<div class="wide"><label>СИЛЫ (ГАРНИЗОН / АРМИИ / АСТАРТЕС)</label><textarea id="edForces" rows="2" placeholder="Например: 3 полка Имперской армии, 2 роты Астартес"></textarea></div>
+<div class="wide"><label>ФЛОТ</label><textarea id="edFleet" rows="2" placeholder="Например: 1 линкор, 4 крейсера, 12 эсминцев"></textarea></div>
+<div class="wide"><label>АРХИВНОЕ ОПИСАНИЕ</label><textarea id="edDesc" rows="3"></textarea></div>
+</div><div class="row"><button class="gold" id="apply">Применить изменения</button><button id="add">Новая система</button></div><div class="row"><button class="danger" id="del">Удалить</button><button id="duplicate">Дублировать</button></div>
+<p class="help">Изменения сохраняются при нажатии «Сохранить». Для публикации онлайн разместите папку проекта на GitHub Pages или Netlify; инструкция — в README.</p></div>
+</aside></main>
+<script>
+const legions=[
+['I','Тёмные Ангелы','Лион Эль’Джонсон','#54765f','✠'],['III','Дети Императора','Фулгрим','#a66b9b','♜'],['IV','Железные Воины','Пертурабо','#9b8d72','⚒'],['V','Белые Шрамы','Джагатай-хан','#c4b9a0','☼'],['VI','Космические Волки','Леман Русс','#6f91a6','ᛟ'],['VII','Имперские Кулаки','Рогал Дорн','#c6a33e','✥'],['VIII','Повелители Ночи','Конрад Кёрз','#596a9b','☾'],['IX','Кровавые Ангелы','Сангвиний','#a74743','✦'],['X','Железные Руки','Феррус Манус','#8d9696','⚙'],['XII','Пожиратели Миров','Ангрон','#ad5542','⚔'],['XIII','Ультрамарины','Робут Жиллиман','#477bb0','Ω'],['XIV','Гвардия Смерти','Мортарион','#78845d','☣'],['XV','Тысяча Сынов','Магнус','#477d8c','◈'],['XVI','Лунные Волки','Хорус Луперкаль','#b7a77e','☀'],['XVII','Несущие Слово','Лоргар','#9c4548','†'],['XVIII','Саламандры','Вулкан','#4f895e','火'],['XIX','Гвардия Ворона','Корвус Коракс','#777d86','羽'],['XX','Альфа-Легион','Альфарий и Омегон','#4c9290','α']
+].map(a=>({id:a[0],name:a[1],primarch:a[2],color:a[3],sigil:a[4]}));
+const owners=[{id:'EMP',name:'Император — Терра и Сол'},{id:'MECH',name:'Марсианский Механикум'},...legions.map(l=>({id:l.id,name:l.name})),{id:'XEN',name:'Неизведанные территории'}];
+const adj=['Инфернус','Санктус','Ауреус','Доминион','Серафикус','Морталис','Кредо','Этернус','Викториан','Солемнис','Империалис','Глориан','Мартириум','Реликтус','Триумфус','Экклезиарх','Астралис','Люминар','Кафедрал','Обскурус','Бенедиктус','Феррум','Калвариум','Сепулькрум','Крусис','Апокриф'];
+const nouns=['Терра','Примус','Секундус','Терциус','Мандат','Эдикт','Бастион','Предел','Реликварий','Кафедра','Синод','Завет','Триумф','Ковчег','Грааль','Маяк','Доминион','Санкция','Искупление','Светоч','Мартирий','Обет','Трон','Крепость','Паломничество','Венец','Сепулькра','Астра','Крусад','Аквила'];
+const types=['Терра-класс','Мир-кузница','Мир-крепость','Агромир','Улей-мир','Шахтёрский мир','Мир-склеп','Священный мир','Джунглевый мир','Ледяной мир','Пустынный мир','Вулканический мир','Необитаемый мир','Административный мир'];
+const descs=['Мир приведён к Имперскому согласию в ходе экспедиционной кампании.','На орбите обнаружены древние доки и следы человеческой колонизации.','Система служит узлом снабжения экспедиционных флотов.','В системе учреждён гарнизон Астартес и наблюдательный пост флота.','Местные храмы перестроены в соответствии с Имперской Истиной.','Сектор богат прометием, редкими металлами и пригодными для заселения мирами.'];
+let systems=[];
+function rand(i){let x=Math.sin(i*127.1+311.7)*43758.5453;return x-Math.floor(x)}
+function makeData(){
+ const fixed=[
+ ['Терра','EMP',0,0,'Терра-класс','Столица человечества. Священный мир Императора, сердце Империума.','Императорский двор и Адептус Терра','Легионы Телохранителей и гарнизон дворца','Флот Солар; флагманские соединения'],
+ ['Луна','EMP',.012,.018,'Крепость-сателлит','Луна — стратегический бастион системы Сол и ближайший щит Терры.','Орбитальные верфи и военные арсеналы','Гарнизон Терранской системы','Орбитальные эскадры Сол'],
+ ['Марс','MECH',.045,.035,'Мир-кузница','Священная кузница Марса, союзник Терры и источник легионного вооружения.','Титаны, броня, оружие, корабельные двигатели','Силы Механикума и легионы титанов','Армады Механикума'],
+ ['Калибан','I',-.16,-.12,'Мир легиона','Родной мир I легиона, окружённый лесами и древними крепостями.','Оружейные мануфактуры и верфи','Гарнизон Тёмных Ангелов','Экспедиционные корабли I легиона'],
+ ['Хемос','III',.18,-.1,'Мир легиона','Мир, возрождённый трудами Фулгрима.','Промышленное производство и ремесло','Гарнизон Детей Императора','Флот III легиона'],
+ ['Олимпия','IV',-.28,.1,'Мир легиона','Суровый горный мир Пертурабо.','Осадные орудия и фортификационные комплексы','Железные Воины','Осадные эскадры'],
+ ['Чогорис','V',.4,-.18,'Мир легиона','Степной мир Джагатая-хана.','Коневодство, снабжение мобильных армий','Белые Шрамы','Быстроходные ударные группы'],
+ ['Фенрис','VI',-.42,-.22,'Мир легиона','Ледяной мир Лемана Русса.','Руды, прометий, военное снабжение','Космические Волки','Флот VI легиона'],
+ ['Инвит','VII',-.05,.17,'Мир легиона','Родной мир VII легиона.','Фортификационные материалы','Имперские Кулаки','Оборонные эскадры'],
+ ['Нострамо','VIII',-.53,-.02,'Мир легиона','Мрачный мир Конрада Кёрза.','Уголь, промышленные ресурсы','Повелители Ночи','Флот VIII легиона'],
+ ['Баал','IX',.02,.42,'Мир легиона','Родной мир Сангвиния.','Военные припасы и генетические хранилища','Кровавые Ангелы','Флот IX легиона'],
+ ['Медуза','X',-.43,.29,'Мир легиона','Родной мир Ферруса Мануса.','Металлы и кузнечное производство','Железные Руки','Флот X легиона'],
+ ['Нукерия','XII',.62,-.2,'Мир легиона','Мир, связанный с судьбой Ангрона.','Ограниченное производство','Пожиратели Миров','Ударные корабли XII легиона'],
+ ['Макрагг','XIII',.18,.27,'Мир легиона','Столица владений Ультрамара.','Многоотраслевое производство','Ультрамарины и оборонные силы','Флот XIII легиона'],
+ ['Барбарус','XIV',-.12,.49,'Мир легиона','Родной мир Мортариона.','Химические и промышленные ресурсы','Гвардия Смерти','Флот XIV легиона'],
+ ['Просперо','XV',.48,.3,'Мир легиона','Мир магистров и библиотек XV легиона.','Архивы, психические исследования','Тысяча Сынов','Флот XV легиона'],
+ ['Хтония','XVI',.3,.02,'Мир легиона','Мир, связанный с ранней историей XVI легиона.','Горнодобыча и тяжёлая промышленность','Лунные Волки / Сыны Хоруса','Флот XVI легиона'],
+ ['Колхида','XVII',.5,-.38,'Мир легиона','Родной мир Лоргара.','Рукописные архивы и строительство','Несущие Слово','Флот XVII легиона'],
+ ['Ноктюрн','XVIII',-.28,.48,'Мир легиона','Вулканический родной мир Вулкана.','Оружейное производство и редкие сплавы','Саламандры','Флот XVIII легиона'],
+ ['Освобождение','XIX',-.72,.16,'Мир легиона','Родной мир XIX легиона.','Снабжение и лёгкая промышленность','Гвардия Ворона','Флот XIX легиона'],
+ ['Альфа-узел','XX',.72,.38,'Секретный объект','Система с фрагментарными и противоречивыми архивами.','Данные засекречены','Данные засекречены','Данные засекречены']
+ ];
+ fixed.forEach(a=>systems.push({name:a[0],owner:a[1],x:a[2],y:a[3],type:a[4],desc:a[5],production:a[6],forces:a[7],fleet:a[8]}));
+ // 323 procedurally named systems: total 344 incl fixed
+ for(let i=0;i<323;i++){
+  let a=i*2.399963+rand(i)*1.4,r=.13+Math.sqrt((i+1)/323)*.88;
+  let x=Math.cos(a)*r,y=Math.sin(a)*r*.69;
+  let owner=owners[2+Math.floor(rand(i+511)*(owners.length-2))].id;
+  if(i%19===0)owner='EMP';if(i%13===0)owner='MECH';
+  let name=adj[Math.floor(rand(i+20)*adj.length)]+' '+nouns[Math.floor(rand(i+90)*nouns.length)];
+  systems.push({name,owner,x:+x.toFixed(3),y:+y.toFixed(3),type:types[Math.floor(rand(i+170)*types.length)],desc:descs[Math.floor(rand(i+230)*descs.length)],production:['Прометий, феррум и стандартные боеприпасы','Агрокультуры и продовольствие для экспедиционных сил','Сплавы, бронеплиты и детали двигателей','Производство ограничено; ресурсы направляются на Терру','Текстиль, медикаменты и промышленные реагенты'][Math.floor(rand(i+310)*5)],forces:['Планетарная оборона: 8 полков; гарнизон Астартес: 1 рота','Имперская армия: 3 экспедиционных полка','Гарнизон: 12 тысяч штыков; оборонные батареи','Астартес: 2 роты; вспомогательные силы: 5 полков'][Math.floor(rand(i+410)*4)],fleet:['1 крейсер, 3 эсминца, 8 транспортов','2 фрегата сопровождения и 1 патрульная эскадра','Орбитальная оборона; постоянного флота нет','1 линкор, 2 крейсера, 6 эсминцев'][Math.floor(rand(i+510)*4)]});
+ }
+}
+const canvas=document.getElementById('map'),ctx=canvas.getContext('2d'),wrap=document.getElementById('mapWrap');let W,H,scale=1,ox=0,oy=0,drag=false,moved=false,last={},selected=-1,active=null,routes=true,territoryCanvas=document.createElement('canvas');
+function color(id){let l=legions.find(a=>a.id===id);return l?l.color:id==='EMP'?'#d6b66e':id==='MECH'?'#b58c53':'#77766f'}
+function resize(){let r=wrap.getBoundingClientRect();W=r.width;H=r.height;canvas.width=W*devicePixelRatio;canvas.height=H*devicePixelRatio;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);if(!ox){ox=W/2;oy=H/2}draw()}
+function p(s){return{x:ox+s.x*Math.min(W,H)*.44*scale,y:oy+s.y*Math.min(W,H)*.44*scale}}
+function makeTerritoryTexture(){
+ let w=360,h=260;territoryCanvas.width=w;territoryCanvas.height=h;let c=territoryCanvas.getContext('2d'),im=c.createImageData(w,h);
+ let seeds=legions.map((l,i)=>({id:l.id,x:Math.cos(i*2.399+.7)*.68,y:Math.sin(i*2.399+.7)*.51}));
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+  let nx=(x/w*2-1)*1.12,ny=(y/h*2-1)*.82;let best=1e9,id='I';
+  seeds.forEach((s,i)=>{let dx=nx-s.x,dy=(ny-s.y)*1.08;let noise=Math.sin(nx*15+i*2.7)*.045+Math.cos(ny*19-i*1.3)*.035+Math.sin((nx+ny)*27+i)*.018;let d=dx*dx+dy*dy+noise;if(d<best){best=d;id=s.id}});
+  let co=hex(color(id)),k=(y*w+x)*4;im.data[k]=co[0];im.data[k+1]=co[1];im.data[k+2]=co[2];im.data[k+3]=105;
+ }
+ c.putImageData(im,0,0);
+}
+function hex(h){return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]}
+function draw(){
+ ctx.clearRect(0,0,W,H);let bg=ctx.createRadialGradient(ox,oy,10,ox,oy,Math.max(W,H)*.8);bg.addColorStop(0,'#1b202a');bg.addColorStop(1,'#05080d');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ ctx.save();ctx.translate(ox,oy);ctx.scale(scale,scale);ctx.translate(-ox,-oy);
+ for(let i=0;i<1050;i++){ctx.globalAlpha=.1+rand(i+900)*.32;ctx.fillStyle='#d7c6a0';ctx.fillRect(rand(i+1200)*W,rand(i+2400)*H,1,1)}ctx.globalAlpha=1;
+ if(document.getElementById('territory').checked){
+  ctx.save();ctx.beginPath();ctx.ellipse(ox,oy,Math.min(W,H)*.49,Math.min(W,H)*.34,-.08,0,Math.PI*2);ctx.clip();
+  // При выборе легиона приглушаем общую политическую подложку, чтобы выделенные системы читались лучше.
+  ctx.globalAlpha=active?.24:.83;
+  ctx.drawImage(territoryCanvas,ox-Math.min(W,H)*.49,oy-Math.min(W,H)*.34,Math.min(W,H)*.98,Math.min(W,H)*.68);
+  ctx.globalAlpha=1;ctx.restore();
+ }
+ // Декоративный внешний обод галактической карты.
+ ctx.beginPath();ctx.ellipse(ox,oy,Math.min(W,H)*.49,Math.min(W,H)*.34,-.08,0,Math.PI*2);
+ ctx.strokeStyle='rgba(190,158,102,.28)';ctx.lineWidth=1/scale;ctx.stroke();
+ // Терра — отдельный суверенный центр Императора.
+ let terra=systems.find(s=>s.name==='Терра');if(terra){let q=p(terra);ctx.beginPath();ctx.arc(q.x,q.y,22,0,Math.PI*2);ctx.strokeStyle='#e0bd70';ctx.lineWidth=2;ctx.stroke();ctx.beginPath();ctx.arc(q.x,q.y,28,0,Math.PI*2);ctx.strokeStyle='rgba(224,189,112,.35)';ctx.lineWidth=1;ctx.stroke()}
+ // Схематические связи между соседними системами; каждое ребро рисуется только один раз.
+ if(routes){
+  ctx.strokeStyle='rgba(193,164,112,.20)';ctx.lineWidth=.65/scale;
+  const edges=new Set();
+  systems.forEach((sys,i)=>{
+   if(active&&sys.owner!==active)return;
+   const a=p(sys),near=systems.map((other,j)=>({j,q:p(other)})).filter(o=>o.j!==i&&(!active||systems[o.j].owner===active)).map(o=>({...o,d:Math.hypot(o.q.x-a.x,o.q.y-a.y)})).sort((x,y)=>x.d-y.d).slice(0,2);
+   near.forEach(n=>{const key=Math.min(i,n.j)+'-'+Math.max(i,n.j);if(edges.has(key))return;edges.add(key);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(n.q.x,n.q.y);ctx.stroke()});
+  });
+ }
+ if(document.getElementById('stars').checked){
+  systems.forEach((s,i)=>{
+   if(active&&s.owner!==active)return;
+   let q=p(s),c=color(s.owner),isCapital=!!s.capitalOf;
+   if(isCapital&&document.getElementById('capitals').checked){
+     ctx.save();
+     ctx.beginPath();ctx.arc(q.x,q.y,10,0,Math.PI*2);ctx.strokeStyle=c;ctx.lineWidth=1.8/scale;ctx.shadowColor=c;ctx.shadowBlur=12;
+     ctx.stroke();ctx.beginPath();ctx.arc(q.x,q.y,6,0,Math.PI*2);ctx.strokeStyle='#e7c77c';ctx.lineWidth=1.2/scale;ctx.stroke();
+     ctx.beginPath();ctx.moveTo(q.x-12,q.y);ctx.lineTo(q.x+12,q.y);ctx.moveTo(q.x,q.y-12);ctx.lineTo(q.x,q.y+12);ctx.strokeStyle='rgba(231,199,124,.75)';ctx.lineWidth=.7/scale;ctx.stroke();
+     ctx.restore();
+   }
+   ctx.beginPath();ctx.fillStyle=i===selected?'#fff0c7':c;ctx.shadowColor=c;ctx.shadowBlur=i===selected?17:5;ctx.arc(q.x,q.y,i===selected?5:(isCapital?3.5:2.4),0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='#e6d7b6';ctx.lineWidth=.5/scale;ctx.stroke();
+   if(document.getElementById('names').checked&&scale>.72){ctx.font=(isCapital?'700 10px':'9px')+' Cinzel';ctx.fillStyle=isCapital?'#f1d28b':(s.owner==='EMP'?'#f0d58f':'#c8b994');ctx.fillText(s.name+(isCapital?' ★':''),q.x+6,q.y-6)}
+  });
+ }
+ ctx.restore();
+}
+function buildList(){
+ let el=document.getElementById('legionList');el.innerHTML='';
+ [{id:'EMP',name:'Владение Императора',color:'#d6b66e'}, {id:'MECH',name:'Марсианский Механикум',color:'#b58c53'},...legions].forEach(l=>{
+  let d=document.createElement('div');d.className='legion'+(active===l.id?' on':'');
+  d.innerHTML=`<i class="swatch" style="background:${l.color}"></i><span>${l.id==='EMP'?'Терра':l.name}</span>`;
+  d.onclick=()=>{active=active===l.id?null:l.id;buildList();draw()};el.appendChild(d)
+ });
+ document.getElementById('edOwner').innerHTML=owners.map(o=>`<option value="${o.id}">${o.name}</option>`).join('');
+ document.getElementById('edCapitalOf').innerHTML='<option value="">Не является столицей</option>'+legions.map(l=>`<option value="${l.id}">${l.id} — ${l.name}</option>`).join('');
+ buildSystemList();
+}
+function buildSystemList(){
+ const host=document.getElementById('systemList');if(!host)return;
+ const q=(document.getElementById('search')?.value||'').trim().toLocaleLowerCase('ru');
+ const matches=systems.map((sys,i)=>({sys,i})).filter(({sys})=>(!active||sys.owner===active)&&(!q||sys.name.toLocaleLowerCase('ru').includes(q)));
+ host.innerHTML='';
+ matches.slice(0,160).forEach(({sys,i})=>{
+  const b=document.createElement('button');b.type='button';b.className='system-entry'+(i===selected?' selected':'');
+  const star=document.createElement('span');star.className='entry-star';star.textContent=sys.capitalOf?'✦':'·';
+  const name=document.createElement('span');name.className='entry-name';name.textContent=sys.name;
+  const owner=document.createElement('span');owner.className='entry-owner';owner.textContent=sys.owner;
+  b.append(star,name,owner);b.title=sys.capitalOf?`Столичный мир легиона ${sys.capitalOf}`:sys.name;
+  b.onclick=()=>selectSystem(i,true);host.appendChild(b);
+ });
+ if(matches.length>160){const note=document.createElement('div');note.className='help';note.textContent=`Показаны первые 160 из ${matches.length}. Уточните поиск.`;host.appendChild(note)}
+ if(!matches.length){const note=document.createElement('div');note.className='help';note.textContent='Системы не найдены.';host.appendChild(note)}
+}
+function selectSystem(i,center=false){
+ if(i<0||i>=systems.length)return;
+ selected=i;active=null;
+ if(center){const z=p(systems[i]);ox+=W/2-z.x;oy+=H/2-z.y}
+ buildList();details();draw();
+}
+function toast(t){let e=document.getElementById('toast');e.textContent=t;e.style.opacity=1;setTimeout(()=>e.style.opacity=0,1800)}
+function details(){
+ const host=document.getElementById('info'),s=systems[selected];
+ if(!s){
+  host.innerHTML='<p class="muted">Выберите систему на карте или в реестре слева.</p>';
+  ['edName','edX','edY','edProd','edForces','edFleet','edDesc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('edCapitalOf').value='';
+  return;
+ }
+ const l=legions.find(x=>x.id===s.owner),own=owners.find(x=>x.id===s.owner);
+ const capital=l&&s.capitalOf?`<div class="capital-note">✦ СТОЛИЧНЫЙ МИР ЛЕГИОНА ${s.capitalOf}<br><small>${s.capitalTitle||l.name}</small></div>`:
+  (s.capitalOf?`<div class="capital-note">✦ СТОЛИЧНЫЙ МИР ЛЕГИОНА ${s.capitalOf}<br><small>${s.capitalTitle||''}</small></div>`:'');
+ host.innerHTML=`<div class="seal"><div class="sig">${s.owner==='EMP'?'♛':l?l.sigil:'✠'}</div><div class="sysname">${s.name}</div><div class="muted">${own?own.name:s.owner}</div></div>${capital}<p>${s.desc||''}</p><div class="grid"><div class="cell"><b>ТИП МИРА</b>${s.type||'Не классифицирован'}</div><div class="cell"><b>ВЛАДЕЛЕЦ</b>${own?own.name:s.owner}</div><div class="cell"><b>ПРОИЗВОДСТВО</b>${s.production||'Не указано'}</div><div class="cell"><b>СИЛЫ</b>${s.forces||'Не указаны'}</div><div class="cell" style="grid-column:1/-1"><b>ФЛОТ</b>${s.fleet||'Не указан'}</div></div>`;
+ const values={edName:s.name,edOwner:s.owner,edType:s.type||'Необитаемый мир',edX:s.x,edY:s.y,edProd:s.production,edForces:s.forces,edFleet:s.fleet,edDesc:s.desc,edCapitalOf:s.capitalOf||''};
+ Object.entries(values).forEach(([id,value])=>{const e=document.getElementById(id);if(e)e.value=value??''});
+ buildSystemList();
+}
+function refresh(){document.getElementById('count').textContent=systems.length+' СИСТЕМ В РЕЕСТРЕ';draw();details()}
+function apply(){
+ if(selected<0)return toast('Сначала выберите систему');
+ let s=systems[selected],n=document.getElementById('edName').value.trim();
+ if(!n)return toast('Укажите название');
+ const newCapital=document.getElementById('edCapitalOf').value;
+ if(newCapital){
+  systems.forEach((other,i)=>{if(i!==selected&&other.capitalOf===newCapital){other.capitalOf=null;other.capitalTitle=null}});
+  const legion=legions.find(l=>l.id===newCapital);
+  s.capitalOf=newCapital;
+  s.capitalTitle=`Столичный мир ${newCapital}-го легиона — ${legion?legion.name:'Легион'}`;
+ }else{s.capitalOf=null;s.capitalTitle=null}
+ s.name=n;s.owner=document.getElementById('edOwner').value;s.type=document.getElementById('edType').value;
+ s.x=Math.max(-1,Math.min(1,+document.getElementById('edX').value||0));s.y=Math.max(-1,Math.min(1,+document.getElementById('edY').value||0));
+ s.production=document.getElementById('edProd').value;s.forces=document.getElementById('edForces').value;s.fleet=document.getElementById('edFleet').value;s.desc=document.getElementById('edDesc').value;
+ refresh();toast('Изменения системы применены. Нажмите «Сохранить» для записи в браузер.');
+}
+function add(){systems.push({name:'Новый Санктус Терра',owner:'EMP',x:+(Math.random()*.8-.4).toFixed(3),y:+(Math.random()*.8-.4).toFixed(3),type:'Необитаемый мир',production:'Не обследовано',forces:'Нет данных',fleet:'Нет данных',desc:'Новая система, внесённая картографом Империума.'});selected=systems.length-1;active=null;buildList();refresh();toast('Система добавлена')}
+function save(){localStorage.setItem('imperiumAtlasV4',JSON.stringify(systems));toast('Карта сохранена в этом браузере')}
+function load(){try{let x=JSON.parse(localStorage.getItem('imperiumAtlasV4')||localStorage.getItem('imperiumAtlasV3'));if(!Array.isArray(x))throw 0;systems=x;selected=-1;refresh();toast('Сохранённая карта загружена')}catch(e){toast('Сохранение не найдено')}}
+function exportFile(){let b=new Blob([JSON.stringify({title:'Атлас Империума',version:3,systems},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='atlas-imperium.json';a.click();URL.revokeObjectURL(a.href)}
+function importFile(f){let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);systems=Array.isArray(d)?d:d.systems;if(!Array.isArray(systems))throw 0;selected=-1;refresh();toast('Архив импортирован')}catch(e){toast('Ошибка формата JSON')}};r.readAsText(f)}
+canvas.addEventListener('mousedown',e=>{drag=true;moved=false;last={x:e.clientX,y:e.clientY};canvas.classList.add('drag')});window.addEventListener('mouseup',()=>{drag=false;canvas.classList.remove('drag')});window.addEventListener('mousemove',e=>{if(drag){let dx=e.clientX-last.x,dy=e.clientY-last.y;if(Math.abs(dx)+Math.abs(dy)>2)moved=true;ox+=dx;oy+=dy;last={x:e.clientX,y:e.clientY};draw()}});
+canvas.addEventListener('click',e=>{if(moved)return;let r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,best=20,hit=-1;systems.forEach((s,i)=>{let q=p(s),d=Math.hypot(q.x-x,q.y-y);if(d<best){best=d;hit=i}});if(hit>=0){selectSystem(hit,false)}});
+canvas.addEventListener('wheel',e=>{e.preventDefault();let old=scale;scale=Math.max(.55,Math.min(3.5,scale*(e.deltaY<0?1.12:.89)));let r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;ox=x-(x-ox)*scale/old;oy=y-(y-oy)*scale/old;draw()},{passive:false});
+document.getElementById('apply').onclick=apply;document.getElementById('add').onclick=add;document.getElementById('del').onclick=()=>{if(selected<0)return toast('Выберите систему');if(systems[selected].name==='Терра')return toast('Терру нельзя удалить из реестра');if(confirm('Удалить систему?')){systems.splice(selected,1);selected=-1;buildList();refresh()}};document.getElementById('duplicate').onclick=()=>{if(selected<0)return toast('Выберите систему');let s={...systems[selected],name:systems[selected].name+' Нова',capitalOf:null,capitalTitle:null,x:Math.min(1,systems[selected].x+.025),y:Math.min(1,systems[selected].y+.025)};systems.push(s);selected=systems.length-1;refresh()};
+document.getElementById('save').onclick=save;document.getElementById('load').onclick=load;document.getElementById('export').onclick=exportFile;document.getElementById('import').onclick=()=>document.getElementById('file').click();document.getElementById('file').onchange=e=>e.target.files[0]&&importFile(e.target.files[0]);
+document.getElementById('reset').onclick=()=>{scale=1;ox=W/2;oy=H/2;active=null;buildList();draw()};document.getElementById('routes').onclick=e=>{routes=!routes;e.target.textContent='Связи: '+(routes?'вкл.':'выкл.');draw()};['territory','stars','names','capitals'].forEach(id=>document.getElementById(id).onchange=draw);
+document.getElementById('search').oninput=e=>{
+ const q=e.target.value.trim().toLocaleLowerCase('ru');buildSystemList();
+ if(q.length>=2){const i=systems.findIndex(sys=>sys.name.toLocaleLowerCase('ru').includes(q));if(i>=0)selectSystem(i,true)}
+};
+
+const legionCapitals={
+ I:{aliases:['Калибан'],title:'Калибан — родной мир Тёмных Ангелов'},
+ III:{aliases:['Хемос'],title:'Хемос — родной мир Детей Императора'},
+ IV:{aliases:['Олимпия'],title:'Олимпия — родной мир Железных Воинов'},
+ V:{aliases:['Чогорис'],title:'Чогорис — родной мир Белых Шрамов'},
+ VI:{aliases:['Фенрис'],title:'Фенрис — родной мир Космических Волков'},
+ VII:{aliases:['Инвит'],title:'Инвит — родной мир Имперских Кулаков'},
+ VIII:{aliases:['Нострамо'],title:'Нострамо — родной мир Повелителей Ночи'},
+ IX:{aliases:['Баал'],title:'Баал — родной мир Кровавых Ангелов'},
+ X:{aliases:['Медуза'],title:'Медуза — родной мир Железных Рук'},
+ XII:{aliases:['Нукерия'],title:'Нукерия — родной мир Ангрона и ранний центр Пожирателей Миров'},
+ XIII:{aliases:['Макрагг'],title:'Макрагг — центр Ультрамара и родной мир Ультрамаринов'},
+ XIV:{aliases:['Барбарус'],title:'Барбарус — родной мир Гвардии Смерти'},
+ XV:{aliases:['Просперо'],title:'Просперо — родной мир Тысячи Сынов'},
+ XVI:{aliases:['Хтония','Чтония'],title:'Хтония — родной мир Лунных Волков'},
+ XVII:{aliases:['Колхида'],title:'Колхида — родной мир Несущих Слово'},
+ XVIII:{aliases:['Ноктюрн'],title:'Ноктюрн — родной мир Саламандр'},
+ XIX:{aliases:['Освобождение'],title:'Освобождение (Deliverance) — родной мир Гвардии Ворона'},
+ XX:{aliases:['Альфа-узел'],title:'Условный секретный узел штаба Альфа-Легиона; канонический родной мир не подтверждён'}
+};
+function markLegionCapitals(){
+ systems.forEach(sys=>{sys.capitalOf=null;sys.capitalTitle=null});
+ Object.entries(legionCapitals).forEach(([roman,meta])=>{
+  const target=systems.find(sys=>meta.aliases.some(alias=>sys.name.toLocaleLowerCase('ru').includes(alias.toLocaleLowerCase('ru'))));
+  if(target){target.capitalOf=roman;target.capitalTitle=meta.title}
+ });
+}
+
+makeData();markLegionCapitals();makeTerritoryTexture();buildList();resize();refresh();window.addEventListener('resize',resize);
+</script></body></html>
