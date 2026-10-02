@@ -30,7 +30,7 @@ button{background:#211b13;border:1px solid #715832;color:#dec99c;padding:7px 9px
 </style></head><body class="viewer">
 <header><div><div class="brand">✠ АТЛАС ИМПЕРИУМА</div><div class="sub">АСТРОГРАФИЧЕСКИЙ РЕЕСТР · ВЕЛИКИЙ КРЕСТОВЫЙ ПОХОД · М30</div></div><div class="headright">КАРТА ДЛЯ ИГРОКОВ · ТОЛЬКО ПРОСМОТР<br>ВЕЛИКИЙ КРЕСТОВЫЙ ПОХОД · М30</div></header>
 <main>
-<aside class="left" id="left"><div class="section"><h2>Реестр звёздных систем</h2><input id="search" placeholder="Поиск по названию…"><div class="row"><button id="reset">Обзор галактики</button><button id="routes" class="gold">Связи: вкл.</button></div><div id="count">243 СИСТЕМЫ</div><div id="systemList" class="system-list" aria-label="Список звёздных систем"></div></div>
+<aside class="left" id="left"><div class="section"><h2>Реестр звёздных систем</h2><input id="search" placeholder="Поиск по названию…"><div class="row"><button id="reset">Обзор галактики</button><button id="routes" class="gold">Связи: вкл.</button></div><div id="count">267 СИСТЕМ</div><div id="systemList" class="system-list" aria-label="Список звёздных систем"></div></div>
 <div class="section"><h2>Легионы Астартес</h2><div class="legions" id="legionList"></div></div>
 <div class="section"><h2>Слои карты</h2><label><input id="territory" type="checkbox" checked> Владения и границы</label><br><label><input id="stars" type="checkbox" checked> Звёздные системы</label><br><label><input id="names" type="checkbox" checked> Подписи систем</label><br><label><input id="capitals" type="checkbox" checked> Столичные миры легионов</label></div>
 <div class="section admin-only"><h2>Оперативные отметки</h2><div class="row"><button id="markFleet">⚓ Нанести флот</button><button id="markBattle">⚔ Отметить битву</button></div><p class="help">Выберите тип отметки, затем щёлкните по нужному месту карты. Название и описание вводятся в диалогах. Щелчок по существующей отметке позволяет удалить её. Сохранение — в разделе архива.</p></div>
@@ -100,13 +100,15 @@ function makeData(){
    systems.push({name,owner:legion.id,x:+x.toFixed(3),y:+y.toFixed(3),type:types[Math.floor(rand(seed+170)*types.length)],desc:descs[Math.floor(rand(seed+230)*descs.length)],production:['Прометий, феррум и стандартные боеприпасы','Агрокультуры и продовольствие для экспедиционных сил','Сплавы, бронеплиты и детали двигателей','Производство ограничено; ресурсы направляются на Терру','Текстиль, медикаменты и промышленные реагенты'][Math.floor(rand(seed+310)*5)],forces:['Планетарная оборона: 8 полков; гарнизон Астартес: 1 рота','Имперская армия: 3 экспедиционных полка','Гарнизон: 12 тысяч штыков; оборонные батареи','Астартес: 2 роты; вспомогательные силы: 5 полков'][Math.floor(rand(seed+410)*4)],fleet:['1 крейсер, 3 эсминца, 8 транспортов','2 фрегата сопровождения и 1 патрульная эскадра','Орбитальная оборона; постоянного флота нет','1 линкор, 2 крейсера, 6 эсминцев'][Math.floor(rand(seed+510)*4)]});
   }
  });
- // Отдельное скопление из 24 неизведанных систем на внешнем краю карты.
- const unknownNames=['Немой','Затерянный','Сумрачный','Безымянный','Пепельный','Погасший','Забытый','Туманный','Дальний','Пустой','Скрытый','Мёртвый'];
- for(let j=0;j<24;j++){
-  const angle=j*2.399963+rand(j+1700)*.42,radius=.025+Math.sqrt(rand(j+1900))*.105;
-  const x=.78+Math.cos(angle)*radius,y=-.43+Math.sin(angle)*radius*.72;
-  systems.push({name:'НМ-'+String(j+1).padStart(2,'0')+' · '+unknownNames[j%unknownNames.length],owner:'XEN',x:+x.toFixed(3),y:+y.toFixed(3),type:'Необитаемый мир',desc:'Неизведанная система скопления. Данные астропатических зондов фрагментарны; статус и население не подтверждены.',production:'Не обследовано',forces:'Неизвестны',fleet:'Неизвестен',cluster:'unknown'});
- }
+ // Шесть разнесённых по окраинам скоплений неизведанных систем.
+ const unknownNames=['Немой','Затерянный','Сумрачный','Безымянный','Пепельный','Погасший','Забытый','Туманный','Дальний','Пустой','Скрытый','Мёртвый','Безмолвный','Затонувший','Холодный','Слепой'];
+ const unknownClusters=[{id:'rim-nw',name:'Предел Немоты',x:-.78,y:-.61},{id:'rim-n',name:'Туманные рубежи',x:0,y:-.75},{id:'rim-ne',name:'Пустошь Ориона',x:.78,y:-.61},{id:'rim-sw',name:'Пепельный край',x:-.78,y:.60},{id:'rim-s',name:'Безмолвная дуга',x:0,y:.75},{id:'rim-se',name:'Забытый предел',x:.78,y:.60}];
+ unknownClusters.forEach((cluster,ci)=>{for(let j=0;j<8;j++){
+  const seed=2100+ci*43+j,angle=j*2.399963+rand(seed)*.36,radius=.018+Math.sqrt(rand(seed+700))*.105;
+  const x=Math.max(-.94,Math.min(.94,cluster.x+Math.cos(angle)*radius));
+  const y=Math.max(-.79,Math.min(.79,cluster.y+Math.sin(angle)*radius*.72));
+  systems.push({name:'НМ-'+String(ci+1).padStart(2,'0')+'-'+String(j+1).padStart(2,'0')+' · '+unknownNames[(ci*3+j)%unknownNames.length],owner:'XEN',x:+x.toFixed(3),y:+y.toFixed(3),type:'Необитаемый мир',desc:'Неизведанная система скопления «'+cluster.name+'». Данные астропатических зондов фрагментарны; статус и население не подтверждены.',production:'Не обследовано',forces:'Неизвестны',fleet:'Неизвестен',cluster:cluster.id,clusterName:cluster.name});
+ }});
 }
 const canvas=document.getElementById('map'),ctx=canvas.getContext('2d'),wrap=document.getElementById('mapWrap');let W,H,scale=1,panX=0,panY=0,drag=false,moved=false,last={},selected=-1,active=null,routes=true,territoryCanvas=document.createElement('canvas');
 function color(id){let l=legions.find(a=>a.id===id);return l?l.color:id==='EMP'?'#d6b66e':id==='MECH'?'#b58c53':id==='XEN'?'#a8a69b':'#77766f'}
@@ -159,8 +161,9 @@ function draw(){
  // Декоративный внешний обод галактической карты.
  ctx.beginPath();ctx.ellipse(ox,oy,Math.min(W,H)*.49,Math.min(W,H)*.34,-.08,0,Math.PI*2);
  ctx.strokeStyle='rgba(190,158,102,.28)';ctx.lineWidth=1/scale;ctx.stroke();
- // Скопление неизведанных миров — отдельная внешняя область карты.
- const unknownCenter=p({x:.78,y:-.43});ctx.save();ctx.setLineDash([5/scale,4/scale]);ctx.beginPath();ctx.ellipse(unknownCenter.x,unknownCenter.y,Math.min(W,H)*.115,Math.min(W,H)*.09,-.25,0,Math.PI*2);ctx.strokeStyle='rgba(190,190,170,.7)';ctx.lineWidth=1.4/scale;ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#c5c2ad';ctx.font='600 '+(10/scale)+'px Cinzel';ctx.textAlign='center';ctx.fillText('СКОПЛЕНИЕ НЕИЗВЕДАННЫХ МИРОВ',unknownCenter.x,unknownCenter.y-Math.min(W,H)*.105);ctx.restore();
+ // Контуры шести скоплений неизведанных миров.
+ const rimClusters=[{name:'ПРЕДЕЛ НЕМОТЫ',x:-.78,y:-.61},{name:'ТУМАННЫЕ РУБЕЖИ',x:0,y:-.75},{name:'ПУСТОШЬ ОРИОНА',x:.78,y:-.61},{name:'ПЕПЕЛЬНЫЙ КРАЙ',x:-.78,y:.60},{name:'БЕЗМОЛВНАЯ ДУГА',x:0,y:.75},{name:'ЗАБЫТЫЙ ПРЕДЕЛ',x:.78,y:.60}];
+ rimClusters.forEach(cluster=>{const q=p(cluster);ctx.save();ctx.setLineDash([5/scale,4/scale]);ctx.beginPath();ctx.ellipse(q.x,q.y,Math.min(W,H)*.095,Math.min(W,H)*.075,-.25,0,Math.PI*2);ctx.strokeStyle='rgba(190,190,170,.7)';ctx.lineWidth=1.4/scale;ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#c5c2ad';ctx.font='600 '+(9/scale)+'px Cinzel';ctx.textAlign='center';ctx.fillText(cluster.name,q.x,q.y-Math.min(W,H)*.085);ctx.restore()});
  // Терра — отдельный суверенный центр Императора.
  let terra=systems.find(s=>s.name==='Терра');if(terra){let q=p(terra);ctx.beginPath();ctx.arc(q.x,q.y,22,0,Math.PI*2);ctx.strokeStyle='#e0bd70';ctx.lineWidth=2;ctx.stroke();ctx.beginPath();ctx.arc(q.x,q.y,28,0,Math.PI*2);ctx.strokeStyle='rgba(224,189,112,.35)';ctx.lineWidth=1;ctx.stroke()}
  // Схематические связи между соседними системами; каждое ребро рисуется только один раз.
