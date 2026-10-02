@@ -87,10 +87,15 @@ function makeData(){
  fixed.forEach(a=>systems.push({name:a[0],owner:a[1],x:a[2],y:a[3],type:a[4],desc:a[5],production:a[6],forces:a[7],fleet:a[8]}));
  // 323 procedurally named systems: total 344 incl fixed
  for(let i=0;i<323;i++){
-  let a=i*2.399963+rand(i)*1.4,r=.13+Math.sqrt((i+1)/323)*.88;
-  let x=Math.cos(a)*r,y=Math.sin(a)*r*.69;
   let owner=owners[2+Math.floor(rand(i+511)*(owners.length-2))].id;
   if(i%19===0)owner='EMP';if(i%13===0)owner='MECH';
+  // Системы группируются вокруг родного мира своего легиона.
+  const home=fixed.find(a=>a[1]===owner&&a[4]==='Мир легиона');
+  const center=home?{x:home[2],y:home[3]}:owner==='EMP'?{x:0,y:0}:owner==='MECH'?{x:.045,y:.035}:{x:.78,y:-.48};
+  const angle=i*2.399963+rand(i)*.9;
+  const radius=.035+Math.sqrt(rand(i+811))*.105;
+  let x=center.x+Math.cos(angle)*radius;
+  let y=center.y+Math.sin(angle)*radius*.72;
   let name=adj[Math.floor(rand(i+20)*adj.length)]+' '+nouns[Math.floor(rand(i+90)*nouns.length)];
   systems.push({name,owner,x:+x.toFixed(3),y:+y.toFixed(3),type:types[Math.floor(rand(i+170)*types.length)],desc:descs[Math.floor(rand(i+230)*descs.length)],production:['Прометий, феррум и стандартные боеприпасы','Агрокультуры и продовольствие для экспедиционных сил','Сплавы, бронеплиты и детали двигателей','Производство ограничено; ресурсы направляются на Терру','Текстиль, медикаменты и промышленные реагенты'][Math.floor(rand(i+310)*5)],forces:['Планетарная оборона: 8 полков; гарнизон Астартес: 1 рота','Имперская армия: 3 экспедиционных полка','Гарнизон: 12 тысяч штыков; оборонные батареи','Астартес: 2 роты; вспомогательные силы: 5 полков'][Math.floor(rand(i+410)*4)],fleet:['1 крейсер, 3 эсминца, 8 транспортов','2 фрегата сопровождения и 1 патрульная эскадра','Орбитальная оборона; постоянного флота нет','1 линкор, 2 крейсера, 6 эсминцев'][Math.floor(rand(i+510)*4)]});
  }
@@ -108,11 +113,10 @@ function makeTerritoryTexture(){
  // Убираем координатный шум, который создавал рваные и хаотичные границы.
  let w=720,h=520;territoryCanvas.width=w;territoryCanvas.height=h;
  let c=territoryCanvas.getContext('2d'),im=c.createImageData(w,h);
- const seeds=legions.map((l,i)=>({
-  id:l.id,
-  x:Math.cos(i*2.399+.7)*.68,
-  y:Math.sin(i*2.399+.7)*.51
- }));
+ const seeds=legions.map(l=>{
+  const home=systems.find(s=>s.owner===l.id&&s.type==='Мир легиона');
+  return {id:l.id,x:home?home.x:0,y:home?home.y:0};
+ });
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
   const nx=(x/w*2-1)*1.12,ny=(y/h*2-1)*.82;
   let best=Infinity,second=Infinity,id='I';
