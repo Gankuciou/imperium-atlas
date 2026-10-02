@@ -167,10 +167,10 @@ function draw(){
   labelCandidates.forEach(item=>{
    const q=screenP(item.s);
    if(q.x<-30||q.x>W+30||q.y<-20||q.y>H+20)return;
-   const font=item.isCapital?'700 10px Cinzel':'9px Cinzel';
+   const font=item.isCapital?'700 8px Cinzel':'7px Cinzel';
    ctx.font=font;
-   const width=ctx.measureText(item.text).width,height=item.isCapital?13:11;
-   const gap=7,placements=[
+   const width=ctx.measureText(item.text).width,height=item.isCapital?10:8;
+   const gap=5,placements=[
     {x:q.x+gap,y:q.y-7},{x:q.x+gap,y:q.y+9},
     {x:q.x-width-gap,y:q.y-7},{x:q.x-width-gap,y:q.y+9},
     {x:q.x+gap,y:q.y-19},{x:q.x-width-gap,y:q.y-19}
