@@ -32,6 +32,7 @@ button{background:#211b13;border:1px solid #715832;color:#dec99c;padding:7px 9px
 <aside class="left" id="left"><div class="section"><h2>Реестр звёздных систем</h2><input id="search" placeholder="Поиск по названию…"><div class="row"><button id="reset">Обзор галактики</button><button id="routes" class="gold">Связи: вкл.</button></div><div id="count">344 СИСТЕМЫ</div><div id="systemList" class="system-list" aria-label="Список звёздных систем"></div></div>
 <div class="section"><h2>Легионы Астартес</h2><div class="legions" id="legionList"></div></div>
 <div class="section"><h2>Слои карты</h2><label><input id="territory" type="checkbox" checked> Владения и границы</label><br><label><input id="stars" type="checkbox" checked> Звёздные системы</label><br><label><input id="names" type="checkbox" checked> Подписи систем</label><br><label><input id="capitals" type="checkbox" checked> Столичные миры легионов</label></div>
+<div class="section"><h2>Оперативные отметки</h2><div class="row"><button id="markFleet">⚓ Нанести флот</button><button id="markBattle">⚔ Отметить битву</button></div><p class="help">Выберите тип отметки, затем щёлкните по нужному месту карты. Название и описание вводятся в диалогах. Щелчок по существующей отметке позволяет удалить её. Сохранение — в разделе архива.</p></div>
 <div class="section"><h2>Архив карт</h2><div class="row"><button id="save">Сохранить</button><button id="load">Загрузить</button></div><div class="row"><button id="export">Экспорт JSON</button><button id="import">Импорт JSON</button></div><input type="file" id="file" accept=".json,application/json" hidden></div>
 <p class="help">Распределение владений и большая часть названий — авторская реконструкция для игрового использования. Терра и система Сол выделены в отдельное владение Императора.</p></aside>
 <div id="mapWrap"><div class="mapcap">TERRA · DOMINIUM IMPERATORIS · SEGMENTA IMPERIALIS</div><canvas id="map"></canvas><div class="mapfoot">ЛКМ — ВЫБОР СИСТЕМЫ · РЕЕСТР СЛЕВА — ПОИСК И ВЫБОР · ПЕРЕТАСКИВАНИЕ — ПЕРЕМЕЩЕНИЕ · КОЛЁСИКО — МАСШТАБ</div><div id="toast"></div></div>
@@ -58,7 +59,7 @@ const adj=['Инфернус','Санктус','Ауреус','Доминион'
 const nouns=['Терра','Примус','Секундус','Терциус','Мандат','Эдикт','Бастион','Предел','Реликварий','Кафедра','Синод','Завет','Триумф','Ковчег','Грааль','Маяк','Доминион','Санкция','Искупление','Светоч','Мартирий','Обет','Трон','Крепость','Паломничество','Венец','Сепулькра','Астра','Крусад','Аквила'];
 const types=['Терра-класс','Мир-кузница','Мир-крепость','Агромир','Улей-мир','Шахтёрский мир','Мир-склеп','Священный мир','Джунглевый мир','Ледяной мир','Пустынный мир','Вулканический мир','Необитаемый мир','Административный мир'];
 const descs=['Мир приведён к Имперскому согласию в ходе экспедиционной кампании.','На орбите обнаружены древние доки и следы человеческой колонизации.','Система служит узлом снабжения экспедиционных флотов.','В системе учреждён гарнизон Астартес и наблюдательный пост флота.','Местные храмы перестроены в соответствии с Имперской Истиной.','Сектор богат прометием, редкими металлами и пригодными для заселения мирами.'];
-let systems=[];
+let systems=[],markers=[],markerMode=null;
 function rand(i){let x=Math.sin(i*127.1+311.7)*43758.5453;return x-Math.floor(x)}
 function makeData(){
  const fixed=[
@@ -85,15 +86,14 @@ function makeData(){
  ['Альфа-узел','XX',.72,.38,'Секретный объект','Система с фрагментарными и противоречивыми архивами.','Данные засекречены','Данные засекречены','Данные засекречены']
  ];
  fixed.forEach(a=>systems.push({name:a[0],owner:a[1],x:a[2],y:a[3],type:a[4],desc:a[5],production:a[6],forces:a[7],fleet:a[8]}));
- // 323 procedurally named systems: total 344 incl fixed
- for(let i=0;i<323;i++){
-  let owner=owners[2+Math.floor(rand(i+511)*(owners.length-2))].id;
-  if(i%19===0)owner='EMP';if(i%13===0)owner='MECH';
-  // Системы группируются вокруг родного мира своего легиона.
+ // 79 procedurally named systems: total 100 including fixed systems.
+ // Each generated system is assigned to a legion first, then placed near its homeworld.
+ for(let i=0;i<79;i++){
+  const owner=legions[Math.floor(i*legions.length/79)].id;
   const home=fixed.find(a=>a[1]===owner&&a[4]==='Мир легиона');
-  const center=home?{x:home[2],y:home[3]}:owner==='EMP'?{x:0,y:0}:owner==='MECH'?{x:.045,y:.035}:{x:.78,y:-.48};
-  const angle=i*2.399963+rand(i)*.9;
-  const radius=.035+Math.sqrt(rand(i+811))*.105;
+  const center=home?{x:home[2],y:home[3]}:{x:0,y:0};
+  const angle=i*2.399963+rand(i)*.45;
+  const radius=.018+Math.sqrt(rand(i+811))*.055;
   let x=center.x+Math.cos(angle)*radius;
   let y=center.y+Math.sin(angle)*radius*.72;
   let name=adj[Math.floor(rand(i+20)*adj.length)]+' '+nouns[Math.floor(rand(i+90)*nouns.length)];
@@ -178,6 +178,8 @@ function draw(){
    if(document.getElementById('names').checked&&(scale>.82||isCapital||i===selected)){labelCandidates.push({i,s,isCapital,text:s.name+(isCapital?' ★':''),priority:i===selected?0:isCapital?1:2})}
   });
  }
+ // Флоты и сражения — отдельные картографические отметки.
+ markers.forEach(m=>{const q=p(m);ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`bold ${15/scale}px sans-serif`;ctx.fillStyle=m.type==='battle'?'#e16b61':'#e4c477';ctx.shadowColor='#080a0d';ctx.shadowBlur=5/scale;ctx.fillText(m.type==='battle'?'⚔':'⚓',q.x,q.y);ctx.font=`${10/scale}px Cinzel`;ctx.fillStyle='#f0dfbd';ctx.fillText(m.name,q.x,q.y-13/scale);ctx.restore()});
  ctx.restore();
  // Подписи рисуются поверх карты в экранных координатах: их размер не зависит от зума.
  // Простая проверка коллизий не позволяет тексту перекрывать уже размещённые подписи.
@@ -277,13 +279,17 @@ function apply(){
  refresh();toast('Изменения системы применены. Нажмите «Сохранить» для записи в браузер.');
 }
 function add(){systems.push({name:'Новый Санктус Терра',owner:'EMP',x:+(Math.random()*.8-.4).toFixed(3),y:+(Math.random()*.8-.4).toFixed(3),type:'Необитаемый мир',production:'Не обследовано',forces:'Нет данных',fleet:'Нет данных',desc:'Новая система, внесённая картографом Империума.'});selected=systems.length-1;active=null;buildList();refresh();toast('Система добавлена')}
-function save(){localStorage.setItem('imperiumAtlasV4',JSON.stringify(systems));toast('Карта сохранена в этом браузере')}
-function load(){try{let x=JSON.parse(localStorage.getItem('imperiumAtlasV4')||localStorage.getItem('imperiumAtlasV3'));if(!Array.isArray(x))throw 0;systems=x;selected=-1;refresh();toast('Сохранённая карта загружена')}catch(e){toast('Сохранение не найдено')}}
-function exportFile(){let b=new Blob([JSON.stringify({title:'Атлас Империума',version:3,systems},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='atlas-imperium.json';a.click();URL.revokeObjectURL(a.href)}
-function importFile(f){let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);systems=Array.isArray(d)?d:d.systems;if(!Array.isArray(systems))throw 0;selected=-1;refresh();toast('Архив импортирован')}catch(e){toast('Ошибка формата JSON')}};r.readAsText(f)}
+function save(){localStorage.setItem('imperiumAtlasV5',JSON.stringify({systems,markers}));toast('Карта и отметки сохранены в этом браузере')}
+function load(){try{let x=JSON.parse(localStorage.getItem('imperiumAtlasV5')||localStorage.getItem('imperiumAtlasV4')||localStorage.getItem('imperiumAtlasV3'));if(!x)throw 0;systems=Array.isArray(x)?x:x.systems;markers=Array.isArray(x.markers)?x.markers:[];if(!Array.isArray(systems))throw 0;selected=-1;refresh();toast('Карта и отметки загружены')}catch(e){toast('Сохранение не найдено')}}
+function exportFile(){let b=new Blob([JSON.stringify({title:'Атлас Империума',version:5,systems,markers},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='atlas-imperium.json';a.click();URL.revokeObjectURL(a.href)}
+function importFile(f){let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);systems=Array.isArray(d)?d:d.systems;markers=Array.isArray(d.markers)?d.markers:[];if(!Array.isArray(systems))throw 0;selected=-1;refresh();toast('Архив карты и отметок импортирован')}catch(e){toast('Ошибка формата JSON')}};r.readAsText(f)}
 canvas.addEventListener('mousedown',e=>{drag=true;moved=false;last={x:e.clientX,y:e.clientY};canvas.classList.add('drag')});window.addEventListener('mouseup',()=>{drag=false;canvas.classList.remove('drag')});window.addEventListener('mousemove',e=>{if(drag){let dx=e.clientX-last.x,dy=e.clientY-last.y;if(Math.abs(dx)+Math.abs(dy)>2)moved=true;panX+=dx;panY+=dy;last={x:e.clientX,y:e.clientY};draw()}});
-canvas.addEventListener('click',e=>{if(moved)return;let r=canvas.getBoundingClientRect(),screen={x:e.clientX-r.left,y:e.clientY-r.top},world=screenToWorld(screen),best=20/scale,hit=-1;systems.forEach((s,i)=>{let q=p(s),d=Math.hypot(q.x-world.x,q.y-world.y);if(d<best){best=d;hit=i}});if(hit>=0){selectSystem(hit,false)}});
+canvas.addEventListener('click',e=>{if(moved)return;let r=canvas.getBoundingClientRect(),screen={x:e.clientX-r.left,y:e.clientY-r.top},world=screenToWorld(screen);
+ if(markerMode){const x=(world.x-W/2)/(Math.min(W,H)*.44),y=(world.y-H/2)/(Math.min(W,H)*.44);const name=prompt(markerMode==='fleet'?'Название флота:':'Название битвы:');if(name&&name.trim()){const desc=prompt('Краткое описание / участники (необязательно):')||'';markers.push({type:markerMode,name:name.trim(),desc,x:+x.toFixed(3),y:+y.toFixed(3)});toast(markerMode==='fleet'?'Флот нанесён на карту':'Битва отмечена на карте')}markerMode=null;document.getElementById('markFleet').classList.remove('gold');document.getElementById('markBattle').classList.remove('gold');draw();return}
+ const markerHit=markers.findIndex(m=>{const q=p(m);return Math.hypot(q.x-world.x,q.y-world.y)<18/scale});if(markerHit>=0){const m=markers[markerHit];if(confirm(`${m.type==='battle'?'Битва':'Флот'}: ${m.name}${m.desc?'\n'+m.desc:''}\nУдалить отметку?`)){markers.splice(markerHit,1);draw()}return}
+ let best=20/scale,hit=-1;systems.forEach((s,i)=>{let q=p(s),d=Math.hypot(q.x-world.x,q.y-world.y);if(d<best){best=d;hit=i}});if(hit>=0){selectSystem(hit,false)}});
 canvas.addEventListener('wheel',e=>{e.preventDefault();let r=canvas.getBoundingClientRect(),anchor={x:e.clientX-r.left,y:e.clientY-r.top},world=screenToWorld(anchor);scale=Math.max(.55,Math.min(3.5,scale*(e.deltaY<0?1.12:.89)));panX=anchor.x-world.x*scale;panY=anchor.y-world.y*scale;draw()},{passive:false});
+document.getElementById('markFleet').onclick=()=>{markerMode=markerMode==='fleet'?null:'fleet';document.getElementById('markFleet').classList.toggle('gold',markerMode==='fleet');document.getElementById('markBattle').classList.remove('gold');toast(markerMode?'Щёлкните по карте, чтобы поставить флот':'Режим отметки выключен')};document.getElementById('markBattle').onclick=()=>{markerMode=markerMode==='battle'?null:'battle';document.getElementById('markBattle').classList.toggle('gold',markerMode==='battle');document.getElementById('markFleet').classList.remove('gold');toast(markerMode?'Щёлкните по карте, чтобы отметить битву':'Режим отметки выключен')};
 document.getElementById('apply').onclick=apply;document.getElementById('add').onclick=add;document.getElementById('del').onclick=()=>{if(selected<0)return toast('Выберите систему');if(systems[selected].name==='Терра')return toast('Терру нельзя удалить из реестра');if(confirm('Удалить систему?')){systems.splice(selected,1);selected=-1;buildList();refresh()}};document.getElementById('duplicate').onclick=()=>{if(selected<0)return toast('Выберите систему');let s={...systems[selected],name:systems[selected].name+' Нова',capitalOf:null,capitalTitle:null,x:Math.min(1,systems[selected].x+.025),y:Math.min(1,systems[selected].y+.025)};systems.push(s);selected=systems.length-1;refresh()};
 document.getElementById('save').onclick=save;document.getElementById('load').onclick=load;document.getElementById('export').onclick=exportFile;document.getElementById('import').onclick=()=>document.getElementById('file').click();document.getElementById('file').onchange=e=>e.target.files[0]&&importFile(e.target.files[0]);
 document.getElementById('reset').onclick=()=>{scale=1;panX=0;panY=0;active=null;buildList();draw()};document.getElementById('routes').onclick=e=>{routes=!routes;e.target.textContent='Связи: '+(routes?'вкл.':'выкл.');draw()};['territory','stars','names','capitals'].forEach(id=>document.getElementById(id).onchange=draw);
