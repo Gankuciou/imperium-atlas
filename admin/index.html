@@ -16,7 +16,30 @@ button{background:#211b13;border:1px solid #715832;color:#dec99c;padding:7px 9px
 #mapWrap{position:relative;overflow:hidden;background:radial-gradient(ellipse at center,#1b202a,#080d15 65%,#05070a)}canvas{width:100%;height:100%;display:block;cursor:grab}canvas.drag{cursor:grabbing}
 .mapcap,.mapfoot{position:absolute;left:16px;pointer-events:none;color:#b49a69;font:10px Cinzel;letter-spacing:1.5px;text-shadow:0 1px 5px #000}.mapcap{top:14px}.mapfoot{bottom:12px;color:#817257;font-size:9px}
 #info{font-size:15px;line-height:1.35}.seal{border:1px solid #72572f;padding:10px;text-align:center;background:linear-gradient(135deg,#211a11,#0b1016);margin-bottom:10px}.sig{font:29px Cinzel;color:var(--gold)}.sysname{font:600 14px Cinzel;color:#e3ca91;letter-spacing:.8px}.muted,.help{color:#9d8d70;font-size:12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}.cell{background:#090d11;border:1px solid #3e3324;padding:7px;font-size:13px;overflow-wrap:anywhere}.cell b{display:block;color:#a99161;font:9px Cinzel;margin-bottom:3px}.editorgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.editorgrid .wide{grid-column:1/-1}.editorgrid label{display:block;font:9px Cinzel;color:#a99369;margin-bottom:3px}.help{font-size:11px;line-height:1.4}#count{font:10px Cinzel;color:#9e8d6b;margin-top:6px}#toast{position:absolute;right:18px;bottom:30px;background:#211a11;border:1px solid #8c6a36;padding:8px 12px;color:#e5d2a8;opacity:0;transition:.2s;pointer-events:none}
-@media(max-width:1000px){main{grid-template-columns:220px 1fr}.right{display:none}}@media(max-width:650px){header{height:60px}.headright{display:none}main{height:calc(100vh - 60px);grid-template-columns:1fr}aside.left{position:absolute;z-index:4;top:60px;bottom:0;width:240px;transform:translateX(-100%);transition:.2s}aside.left.open{transform:translateX(0)}}
+.mobile-nav{display:none}
+@media(max-width:1000px){main{grid-template-columns:220px 1fr}.right{display:none}}
+@media(max-width:650px){
+ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;overscroll-behavior:none}
+ header{height:58px;padding:5px 8px;gap:6px;justify-content:flex-start}
+ .brand{font-size:13px;letter-spacing:1px;white-space:nowrap}
+ .sub{font-size:7px;letter-spacing:.45px;white-space:nowrap}
+ .headright{display:none}
+ .mobile-nav{display:flex;gap:5px;flex:none}
+ .mobile-nav button{font-size:9px;padding:8px 7px;white-space:nowrap}
+ main{height:calc(100dvh - 58px);height:calc(100vh - 58px);grid-template-columns:minmax(0,1fr);display:block;position:relative}
+ #mapWrap{position:absolute;inset:0;width:100%;height:100%;min-width:0}
+ canvas{touch-action:none}
+ .mapcap{top:8px;left:9px;font-size:8px;letter-spacing:.7px}
+ .mapfoot{display:none}
+ aside.left{display:block;position:absolute;z-index:8;top:0;bottom:0;left:0;width:min(88vw,350px);max-width:350px;transform:translateX(-105%);transition:transform .22s ease;padding:12px;box-shadow:12px 0 28px #000a}
+ aside.left.open{transform:translateX(0)}
+ aside.right{display:block;position:absolute;z-index:7;left:0;right:0;bottom:0;top:auto;width:100%;max-height:68%;overflow:auto;border:1px solid #725832;border-bottom:0;border-radius:14px 14px 0 0;padding:14px 14px calc(18px + env(safe-area-inset-bottom));background:linear-gradient(#17191c,#0b0e12);transform:translateY(105%);transition:transform .22s ease;box-shadow:0 -12px 30px #000b}
+ aside.right.open{transform:translateY(0)}
+ .system-list{max-height:32vh}
+ button,input,select,textarea{font-size:16px}
+ .row button{min-height:38px}
+ #toast{right:8px;left:8px;bottom:12px;text-align:center;z-index:10}
+}
 
 .viewer .admin-only{display:none!important}.editor .admin-only{display:block!important}.legion small{margin-left:auto;color:#a99161;font-size:10px}
 .system-list{max-height:245px;overflow:auto;margin-top:8px;border-top:1px solid #3e3427;padding-top:5px}
@@ -28,7 +51,7 @@ button{background:#211b13;border:1px solid #715832;color:#dec99c;padding:7px 9px
 .capital-note{border:1px solid #b89555;background:linear-gradient(90deg,rgba(170,130,65,.2),rgba(30,25,17,.3));padding:8px;margin:9px 0;color:#f0d18b;font:11px Cinzel;letter-spacing:.6px}
 .capital-note small{color:#c8b994;font:11px 'Crimson Text',serif;letter-spacing:0}
 </style></head><body class="editor">
-<header><div><div class="brand">✠ АТЛАС ИМПЕРИУМА</div><div class="sub">АСТРОГРАФИЧЕСКИЙ РЕЕСТР · ВЕЛИКИЙ КРЕСТОВЫЙ ПОХОД · М30</div></div><div class="headright">АДМИНИСТРАТОР · РЕДАКТИРОВАНИЕ КАРТЫ<br>ИЗМЕНЕНИЯ ХРАНЯТСЯ ЛОКАЛЬНО В ЭТОМ БРАУЗЕРЕ</div></header>
+<header><div class="mobile-nav"><button id="mobileMenu" type="button">☰ РЕЕСТР</button><button id="mobileInfo" type="button">ДОСЬЕ</button></div><div><div class="brand">✠ АТЛАС ИМПЕРИУМА</div><div class="sub">АСТРОГРАФИЧЕСКИЙ РЕЕСТР · ВЕЛИКИЙ КРЕСТОВЫЙ ПОХОД · М30</div></div><div class="headright">АДМИНИСТРАТОР · РЕДАКТИРОВАНИЕ КАРТЫ<br>ИЗМЕНЕНИЯ ХРАНЯТСЯ ЛОКАЛЬНО В ЭТОМ БРАУЗЕРЕ</div></header>
 <main>
 <aside class="left" id="left"><div class="section"><h2>Реестр звёздных систем</h2><input id="search" placeholder="Поиск по названию…"><div class="row"><button id="reset">Обзор галактики</button><button id="routes" class="gold">Связи: вкл.</button></div><div id="count">267 СИСТЕМ</div><div id="systemList" class="system-list" aria-label="Список звёздных систем"></div></div>
 <div class="section"><h2>Легионы Астартес</h2><div class="legions" id="legionList"></div></div>
@@ -38,7 +61,7 @@ button{background:#211b13;border:1px solid #715832;color:#dec99c;padding:7px 9px
 <div class="section admin-only"><h2>Публикация для игроков</h2><label for="publishToken">GitHub token (Contents: Read/Write)</label><input id="publishToken" type="password" autocomplete="off" placeholder="github_pat_..."><div class="row"><button id="publish" class="gold">Опубликовать карту игрокам</button></div><p class="help">Токен используется только при публикации и не сохраняется в браузере. Нужен Fine-grained token с доступом к Gankuciou/imperium-atlas и разрешением Contents: Read and write.</p></div>
 <p class="help">Распределение владений и большая часть названий — авторская реконструкция для игрового использования. Терра и система Сол выделены в отдельное владение Императора.</p></aside>
 <div id="mapWrap"><div class="mapcap">TERRA · DOMINIUM IMPERATORIS · SEGMENTA IMPERIALIS</div><canvas id="map"></canvas><div class="mapfoot">ЛКМ — ВЫБОР СИСТЕМЫ · РЕЕСТР СЛЕВА — ПОИСК И ВЫБОР · ПЕРЕТАСКИВАНИЕ — ПЕРЕМЕЩЕНИЕ · КОЛЁСИКО — МАСШТАБ</div><div id="toast"></div></div>
-<aside class="right"><h2>Астрографическое досье</h2><div id="info"><p class="muted">Выберите звёздную систему.</p></div>
+<aside class="right" id="rightPanel"><h2>Астрографическое досье</h2><div id="info"><p class="muted">Выберите звёздную систему.</p></div>
 <div class="section admin-only" style="margin-top:14px"><h2>Редактор выбранной системы</h2><div class="editorgrid">
 <div class="wide"><label>НАЗВАНИЕ СИСТЕМЫ</label><input id="edName"></div>
 <div class="wide"><label>ВЛАДЕЛЕЦ</label><select id="edOwner"></select></div>
@@ -318,7 +341,12 @@ async function publishToPlayers(){
  }catch(e){toast('Ошибка публикации: '+e.message)}finally{btn.disabled=false;btn.textContent='Опубликовать карту игрокам'}
 }
 
-canvas.addEventListener('mousedown',e=>{drag=true;moved=false;last={x:e.clientX,y:e.clientY};canvas.classList.add('drag')});window.addEventListener('mouseup',()=>{drag=false;canvas.classList.remove('drag')});window.addEventListener('mousemove',e=>{if(drag){let dx=e.clientX-last.x,dy=e.clientY-last.y;if(Math.abs(dx)+Math.abs(dy)>2)moved=true;panX+=dx;panY+=dy;last={x:e.clientX,y:e.clientY};draw()}});
+// Единое управление мышью и касанием: перетаскивание одним пальцем, масштаб двумя.
+const activePointers=new Map();let pinchStart=null;
+canvas.addEventListener('pointerdown',e=>{e.preventDefault();canvas.setPointerCapture(e.pointerId);activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=false;if(activePointers.size===1){drag=true;last={x:e.clientX,y:e.clientY};canvas.classList.add('drag')}else{drag=false;moved=true;const pts=[...activePointers.values()];pinchStart={distance:Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y),scale,mid:{x:(pts[0].x+pts[1].x)/2-wrap.getBoundingClientRect().left,y:(pts[0].y+pts[1].y)/2-wrap.getBoundingClientRect().top}};pinchStart.world=screenToWorld(pinchStart.mid)}});
+canvas.addEventListener('pointermove',e=>{if(!activePointers.has(e.pointerId))return;activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(activePointers.size>=2&&pinchStart){const pts=[...activePointers.values()],dist=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y),mid={x:(pts[0].x+pts[1].x)/2-wrap.getBoundingClientRect().left,y:(pts[0].y+pts[1].y)/2-wrap.getBoundingClientRect().top};scale=Math.max(.55,Math.min(3.5,pinchStart.scale*dist/Math.max(1,pinchStart.distance)));panX=mid.x-pinchStart.world.x*scale;panY=mid.y-pinchStart.world.y*scale;moved=true;draw()}else if(drag&&activePointers.size===1){let dx=e.clientX-last.x,dy=e.clientY-last.y;if(Math.abs(dx)+Math.abs(dy)>2)moved=true;panX+=dx;panY+=dy;last={x:e.clientX,y:e.clientY};draw()}});
+function endPointer(e){activePointers.delete(e.pointerId);if(activePointers.size<2)pinchStart=null;if(activePointers.size===0){drag=false;canvas.classList.remove('drag')}else{drag=false;moved=true}}
+canvas.addEventListener('pointerup',endPointer);canvas.addEventListener('pointercancel',endPointer);
 canvas.addEventListener('click',e=>{if(moved)return;let r=canvas.getBoundingClientRect(),screen={x:e.clientX-r.left,y:e.clientY-r.top},world=screenToWorld(screen);
  if(markerMode){const x=(world.x-W/2)/(Math.min(W,H)*.44),y=(world.y-H/2)/(Math.min(W,H)*.44);const name=prompt(markerMode==='fleet'?'Название флота:':'Название битвы:');if(name&&name.trim()){const desc=prompt('Краткое описание / участники (необязательно):')||'';markers.push({type:markerMode,name:name.trim(),desc,x:+x.toFixed(3),y:+y.toFixed(3)});persistMarkers();toast(markerMode==='fleet'?'Флот нанесён на карту':'Битва отмечена на карте')}markerMode=null;document.getElementById('markFleet').classList.remove('gold');document.getElementById('markBattle').classList.remove('gold');draw();return}
  const markerHit=markers.findIndex(m=>{const q=p(m);return Math.hypot(q.x-world.x,q.y-world.y)<18/scale});if(markerHit>=0){const m=markers[markerHit];if(!EDIT_MODE){toast((m.type==='battle'?'Битва: ':'Флот: ')+m.name+(m.desc?' — '+m.desc:''));return}if(confirm(`${m.type==='battle'?'Битва':'Флот'}: ${m.name}${m.desc?'\n'+m.desc:''}\nУдалить отметку?`)){markers.splice(markerHit,1);persistMarkers();draw()}return}
@@ -327,6 +355,8 @@ canvas.addEventListener('wheel',e=>{e.preventDefault();let r=canvas.getBoundingC
 document.getElementById('markFleet').onclick=()=>{markerMode=markerMode==='fleet'?null:'fleet';document.getElementById('markFleet').classList.toggle('gold',markerMode==='fleet');document.getElementById('markBattle').classList.remove('gold');toast(markerMode?'Щёлкните по карте, чтобы поставить флот':'Режим отметки выключен')};document.getElementById('markBattle').onclick=()=>{markerMode=markerMode==='battle'?null:'battle';document.getElementById('markBattle').classList.toggle('gold',markerMode==='battle');document.getElementById('markFleet').classList.remove('gold');toast(markerMode?'Щёлкните по карте, чтобы отметить битву':'Режим отметки выключен')};
 document.getElementById('apply').onclick=apply;document.getElementById('add').onclick=add;document.getElementById('del').onclick=()=>{if(selected<0)return toast('Выберите систему');if(systems[selected].name==='Терра')return toast('Терру нельзя удалить из реестра');if(confirm('Удалить систему?')){systems.splice(selected,1);selected=-1;buildList();refresh()}};document.getElementById('duplicate').onclick=()=>{if(selected<0)return toast('Выберите систему');let s={...systems[selected],name:systems[selected].name+' Нова',capitalOf:null,capitalTitle:null,x:Math.min(1,systems[selected].x+.025),y:Math.min(1,systems[selected].y+.025)};systems.push(s);selected=systems.length-1;refresh()};
 document.getElementById('save').onclick=save;document.getElementById('load').onclick=load;document.getElementById('export').onclick=exportFile;document.getElementById('publish').onclick=publishToPlayers;document.getElementById('import').onclick=()=>document.getElementById('file').click();document.getElementById('file').onchange=e=>e.target.files[0]&&importFile(e.target.files[0]);
+document.getElementById('mobileMenu').onclick=()=>{document.getElementById('left').classList.toggle('open');document.getElementById('rightPanel').classList.remove('open')};
+document.getElementById('mobileInfo').onclick=()=>{document.getElementById('rightPanel').classList.toggle('open');document.getElementById('left').classList.remove('open')};
 document.getElementById('reset').onclick=()=>{scale=1;panX=0;panY=0;active=null;buildList();draw()};document.getElementById('routes').onclick=e=>{routes=!routes;e.target.textContent='Связи: '+(routes?'вкл.':'выкл.');draw()};['territory','stars','names','capitals'].forEach(id=>document.getElementById(id).onchange=draw);
 document.getElementById('search').oninput=e=>{
  const q=e.target.value.trim().toLocaleLowerCase('ru');buildSystemList();
