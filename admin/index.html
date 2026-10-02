@@ -165,8 +165,8 @@ function draw(){
  // Контуры шести скоплений неизведанных миров.
  const rimClusters=[{name:'ПРЕДЕЛ НЕМОТЫ',x:-.78,y:-.61},{name:'ТУМАННЫЕ РУБЕЖИ',x:0,y:-.75},{name:'ПУСТОШЬ ОРИОНА',x:.78,y:-.61},{name:'ПЕПЕЛЬНЫЙ КРАЙ',x:-.78,y:.60},{name:'БЕЗМОЛВНАЯ ДУГА',x:0,y:.75},{name:'ЗАБЫТЫЙ ПРЕДЕЛ',x:.78,y:.60}];
  rimClusters.forEach(cluster=>{const q=p(cluster);ctx.save();ctx.setLineDash([5/scale,4/scale]);ctx.beginPath();ctx.ellipse(q.x,q.y,Math.min(W,H)*.095,Math.min(W,H)*.075,-.25,0,Math.PI*2);ctx.strokeStyle='rgba(190,190,170,.7)';ctx.lineWidth=1.4/scale;ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#c5c2ad';ctx.font='600 '+(22/scale)+'px Cinzel';ctx.textAlign='center';ctx.fillText(cluster.name,q.x,q.y-Math.min(W,H)*.085);ctx.restore()});
- // Терра — отдельный суверенный центр Императора.
- let terra=systems.find(s=>s.name==='Терра');if(terra){let q=p(terra);ctx.beginPath();ctx.arc(q.x,q.y,22,0,Math.PI*2);ctx.strokeStyle='#e0bd70';ctx.lineWidth=2;ctx.stroke();ctx.beginPath();ctx.arc(q.x,q.y,28,0,Math.PI*2);ctx.strokeStyle='rgba(224,189,112,.35)';ctx.lineWidth=1;ctx.stroke()}
+ // Терра — столица Империума: отдельная золотая корона и три орбиты.
+ let terra=systems.find(s=>s.name==='Терра');if(terra){let q=p(terra);ctx.save();ctx.setLineDash([]);[17,25,34,43].forEach((r,k)=>{ctx.beginPath();ctx.arc(q.x,q.y,r,0,Math.PI*2);ctx.strokeStyle=k===0?'#ffe6a0':k===1?'#e0bd70':k===2?'rgba(224,189,112,.75)':'rgba(224,189,112,.32)';ctx.lineWidth=(k===0?2.8:k===1?2:1.2)/scale;ctx.stroke()});for(let a=0;a<8;a++){const ang=a*Math.PI/4;ctx.beginPath();ctx.moveTo(q.x+Math.cos(ang)*29,q.y+Math.sin(ang)*29);ctx.lineTo(q.x+Math.cos(ang)*39,q.y+Math.sin(ang)*39);ctx.strokeStyle='rgba(255,220,145,.85)';ctx.lineWidth=1.5/scale;ctx.stroke()}ctx.restore()}
  // Схематические связи между соседними системами; каждое ребро рисуется только один раз.
  if(routes){
   ctx.strokeStyle='rgba(193,164,112,.20)';ctx.lineWidth=.65/scale;
@@ -189,7 +189,7 @@ function draw(){
      ctx.restore();
    }
    ctx.beginPath();ctx.fillStyle=i===selected?'#fff0c7':c;ctx.shadowColor=c;ctx.shadowBlur=i===selected?17:5;ctx.arc(q.x,q.y,i===selected?5:(isCapital?3.5:2.4),0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='#e6d7b6';ctx.lineWidth=.5/scale;ctx.stroke();
-   if(document.getElementById('names').checked&&(scale>.82||isCapital||i===selected)){labelCandidates.push({i,s,isCapital,text:s.name+(isCapital?' ★':''),priority:i===selected?0:isCapital?1:2})}
+   if(s.name!=='Терра'&&document.getElementById('names').checked&&(scale>.82||isCapital||i===selected)){labelCandidates.push({i,s,isCapital,text:s.name+(isCapital?' ★':''),priority:i===selected?0:isCapital?1:2})}
   });
  }
  // Флоты и сражения — отдельные картографические отметки.
@@ -225,6 +225,8 @@ function draw(){
    }
   });
  }
+ // Постоянная экранная подпись Терры не зависит от масштаба и включена даже при скрытии остальных названий.
+ if(terra){const q=screenP(terra),bx=Math.max(8,Math.min(W-292,q.x+42)),by=Math.max(8,Math.min(H-62,q.y-68));ctx.save();ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);ctx.textBaseline='middle';ctx.fillStyle='rgba(13,16,20,.94)';ctx.strokeStyle='#e0bd70';ctx.lineWidth=1.8;ctx.shadowColor='#e0bd70';ctx.shadowBlur=13;ctx.fillRect(bx,by,284,54);ctx.shadowBlur=0;ctx.strokeRect(bx,by,284,54);ctx.textAlign='left';ctx.fillStyle='#ffe4a0';ctx.font='bold 24px Cinzel';ctx.fillText('ТЕРРА',bx+13,by+19);ctx.fillStyle='#e5c98d';ctx.font='600 12px Cinzel';ctx.fillText('СТОЛИЦА ИМПЕРИУМА',bx+14,by+41);ctx.textAlign='center';ctx.font='20px sans-serif';ctx.fillStyle='#ffe6a0';ctx.shadowColor='#000';ctx.shadowBlur=4;ctx.fillText('♛',q.x,q.y+1);ctx.restore();}
 }
 function buildList(){
  let el=document.getElementById('legionList');el.innerHTML='';
