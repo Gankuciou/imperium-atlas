@@ -98,7 +98,8 @@ function makeData(){
 const canvas=document.getElementById('map'),ctx=canvas.getContext('2d'),wrap=document.getElementById('mapWrap');let W,H,scale=1,ox=0,oy=0,drag=false,moved=false,last={},selected=-1,active=null,routes=true,territoryCanvas=document.createElement('canvas');
 function color(id){let l=legions.find(a=>a.id===id);return l?l.color:id==='EMP'?'#d6b66e':id==='MECH'?'#b58c53':'#77766f'}
 function resize(){let r=wrap.getBoundingClientRect();W=r.width;H=r.height;canvas.width=W*devicePixelRatio;canvas.height=H*devicePixelRatio;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);if(!ox){ox=W/2;oy=H/2}draw()}
-function p(s){return{x:ox+s.x*Math.min(W,H)*.44*scale,y:oy+s.y*Math.min(W,H)*.44*scale}}
+function p(s){return{x:ox+s.x*Math.min(W,H)*.44,y:oy+s.y*Math.min(W,H)*.44}}
+function screenP(s){let q=p(s);return{x:ox+(q.x-ox)*scale,y:oy+(q.y-oy)*scale}}
 function makeTerritoryTexture(){
  let w=360,h=260;territoryCanvas.width=w;territoryCanvas.height=h;let c=territoryCanvas.getContext('2d'),im=c.createImageData(w,h);
  let seeds=legions.map((l,i)=>({id:l.id,x:Math.cos(i*2.399+.7)*.68,y:Math.sin(i*2.399+.7)*.51}));
@@ -183,7 +184,7 @@ function buildSystemList(){
 function selectSystem(i,center=false){
  if(i<0||i>=systems.length)return;
  selected=i;active=null;
- if(center){const z=p(systems[i]);ox+=W/2-z.x;oy+=H/2-z.y}
+ if(center){const z=screenP(systems[i]);ox+=W/2-z.x;oy+=H/2-z.y}
  buildList();details();draw();
 }
 function toast(t){let e=document.getElementById('toast');e.textContent=t;e.style.opacity=1;setTimeout(()=>e.style.opacity=0,1800)}
@@ -226,7 +227,7 @@ function load(){try{let x=JSON.parse(localStorage.getItem('imperiumAtlasV4')||lo
 function exportFile(){let b=new Blob([JSON.stringify({title:'Атлас Империума',version:3,systems},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='atlas-imperium.json';a.click();URL.revokeObjectURL(a.href)}
 function importFile(f){let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);systems=Array.isArray(d)?d:d.systems;if(!Array.isArray(systems))throw 0;selected=-1;refresh();toast('Архив импортирован')}catch(e){toast('Ошибка формата JSON')}};r.readAsText(f)}
 canvas.addEventListener('mousedown',e=>{drag=true;moved=false;last={x:e.clientX,y:e.clientY};canvas.classList.add('drag')});window.addEventListener('mouseup',()=>{drag=false;canvas.classList.remove('drag')});window.addEventListener('mousemove',e=>{if(drag){let dx=e.clientX-last.x,dy=e.clientY-last.y;if(Math.abs(dx)+Math.abs(dy)>2)moved=true;ox+=dx;oy+=dy;last={x:e.clientX,y:e.clientY};draw()}});
-canvas.addEventListener('click',e=>{if(moved)return;let r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,best=20,hit=-1;systems.forEach((s,i)=>{let q=p(s),d=Math.hypot(q.x-x,q.y-y);if(d<best){best=d;hit=i}});if(hit>=0){selectSystem(hit,false)}});
+canvas.addEventListener('click',e=>{if(moved)return;let r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,best=20,hit=-1;systems.forEach((s,i)=>{let q=screenP(s),d=Math.hypot(q.x-x,q.y-y);if(d<best){best=d;hit=i}});if(hit>=0){selectSystem(hit,false)}});
 canvas.addEventListener('wheel',e=>{e.preventDefault();let old=scale;scale=Math.max(.55,Math.min(3.5,scale*(e.deltaY<0?1.12:.89)));let r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;ox=x-(x-ox)*scale/old;oy=y-(y-oy)*scale/old;draw()},{passive:false});
 document.getElementById('apply').onclick=apply;document.getElementById('add').onclick=add;document.getElementById('del').onclick=()=>{if(selected<0)return toast('Выберите систему');if(systems[selected].name==='Терра')return toast('Терру нельзя удалить из реестра');if(confirm('Удалить систему?')){systems.splice(selected,1);selected=-1;buildList();refresh()}};document.getElementById('duplicate').onclick=()=>{if(selected<0)return toast('Выберите систему');let s={...systems[selected],name:systems[selected].name+' Нова',capitalOf:null,capitalTitle:null,x:Math.min(1,systems[selected].x+.025),y:Math.min(1,systems[selected].y+.025)};systems.push(s);selected=systems.length-1;refresh()};
 document.getElementById('save').onclick=save;document.getElementById('load').onclick=load;document.getElementById('export').onclick=exportFile;document.getElementById('import').onclick=()=>document.getElementById('file').click();document.getElementById('file').onchange=e=>e.target.files[0]&&importFile(e.target.files[0]);
