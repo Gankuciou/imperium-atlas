@@ -74,7 +74,7 @@ button{background:#211b13;border:1px solid #715832;color:#dec99c;padding:7px 9px
 <div class="wide"><label>ФЛОТ</label><textarea id="edFleet" rows="2" placeholder="Например: 1 линкор, 4 крейсера, 12 эсминцев"></textarea></div>
 <div class="wide"><label>АРХИВНОЕ ОПИСАНИЕ</label><textarea id="edDesc" rows="3"></textarea></div>
 </div><div class="row"><button class="gold" id="apply">Применить изменения</button><button id="add">Новая система: выбрать место</button></div><div class="row"><button class="danger" id="del">Удалить выбранную систему</button><button id="duplicate">Дублировать</button></div>
-<p class="help">«Сохранить» записывает изменения только в этот браузер. Чтобы показать игрокам обновлённые системы, флоты и битвы: нажмите «Экспорт JSON», затем загрузите полученный файл atlas-data.json в корень репозитория GitHub, заменив прежний файл. Игровая карта прочитает опубликованный архив автоматически.</p></div>
+<p class="help">«Сохранить» записывает изменения в этом браузере. «Опубликовать карту игрокам» отправляет текущий архив систем, сил и флотов прямо в atlas-data.json репозитория. При открытии админская карта загружает опубликованный архив; локальные правки сохраняются поверх него, а данные флотов синхронизируются с опубликованной версией.</p></div>
 </aside></main>
 <script>
 const legions=[
@@ -324,7 +324,7 @@ function add(){placementMode=!placementMode;markerMode=null;document.getElementB
 function persistMarkers(){if(!EDIT_MODE)return;localStorage.setItem(STORAGE_KEY,JSON.stringify({systems,markers}))}
 function save(){if(!EDIT_MODE)return;localStorage.setItem(STORAGE_KEY,JSON.stringify({systems,markers}));toast('Карта и отметки сохранены в этом браузере')}
 function load(){if(!EDIT_MODE)return;try{let x=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(!x)throw 0;systems=Array.isArray(x)?x:x.systems;markers=Array.isArray(x.markers)?x.markers:[];if(!Array.isArray(systems))throw 0;selected=-1;refresh();toast('Карта и отметки загружены')}catch(e){toast('Сохранение не найдено')}}
-function exportFile(){let b=new Blob([JSON.stringify({title:'Атлас Империума',version:6,systems,markers},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='atlas-data.json';a.click();URL.revokeObjectURL(a.href)}
+function exportFile(){let b=new Blob([JSON.stringify({title:'Атлас Империума',version:10,systems,markers},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='atlas-data.json';a.click();URL.revokeObjectURL(a.href)}
 function importFile(f){let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);systems=Array.isArray(d)?d:d.systems;markers=Array.isArray(d.markers)?d.markers:[];if(!Array.isArray(systems))throw 0;selected=-1;markLegionCapitals();makeTerritoryTexture();buildList();refresh();toast('Архив карты и отметок импортирован')}catch(e){toast('Ошибка формата JSON')}};r.readAsText(f)}
 async function publishToPlayers(){
  const token=document.getElementById('publishToken').value.trim();if(!token){toast('Вставьте GitHub token для публикации');return}
@@ -335,7 +335,7 @@ async function publishToPlayers(){
   const headers={'Accept':'application/vnd.github+json','Authorization':'Bearer '+token,'X-GitHub-Api-Version':'2022-11-28'};
   const current=await fetch(api+'?ref=main',{headers});let sha=null;
   if(current.ok){sha=(await current.json()).sha}else if(current.status!==404){const err=await current.json();throw new Error(err.message||'Не удалось прочитать архив GitHub')}
-  const payload={title:'Атлас Империума',version:7,publishedAt:new Date().toISOString(),systems,markers};
+  const payload={title:'Атлас Империума',version:10,publishedAt:new Date().toISOString(),systems,markers};
   const bytes=new TextEncoder().encode(JSON.stringify(payload,null,2));let binary='';for(let i=0;i<bytes.length;i++)binary+=String.fromCharCode(bytes[i]);
   const body={message:'Publish updated Imperium atlas for players',content:btoa(binary),branch:'main'};if(sha)body.sha=sha;
   const response=await fetch(api,{method:'PUT',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify(body)});const result=await response.json();if(!response.ok)throw new Error(result.message||'GitHub отклонил публикацию');
@@ -394,5 +394,47 @@ function markLegionCapitals(){
  });
 }
 
-makeData();if(EDIT_MODE){try{const generated=systems.slice();const counts={"I":8,"III":9,"IV":10,"V":11,"VI":12,"VII":8,"VIII":9,"IX":10,"X":8,"XII":10,"XIII":8,"XIV":9,"XV":9,"XVI":11,"XVII":12,"XVIII":8,"XIX":8,"XX":10};const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(saved&&Array.isArray(saved.systems)){const generatedName=s=>/ (XVIII|XVII|XVI|XIV|XIII|XII|XIX|XX|XV|X|IX|VIII|VII|VI|V|IV|III|I)-\\d{2}$/.test(s.name);const cleaned=saved.systems.filter(s=>{const m=s.name.match(/ (XVIII|XVII|XVI|XIV|XIII|XII|XIX|XX|XV|X|IX|VIII|VII|VI|V|IV|III|I)-(\\d{2})$/);return !m||+m[2]<counts[m[1]]});cleaned.forEach(s=>{if(s.owner==='EMP'&&s.name!=='Терра'&&s.name!=='Луна'){const m=s.name.match(/ (XVIII|XVII|XVI|XIV|XIII|XII|XIX|XX|XV|X|IX|VIII|VII|VI|V|IV|III|I)-\\d{2}$/);s.owner=m?m[1]:'XEN'}if(s.owner==='MECH'&&s.name!=='Марс')s.owner='XEN'});const known=new Set(cleaned.map(s=>s.name));systems=cleaned.concat(generated.filter(s=>!known.has(s.name)));markers=Array.isArray(saved.markers)?saved.markers:[]}}catch(e){}}markLegionCapitals();makeTerritoryTexture();buildList();resize();refresh();if(!EDIT_MODE){fetch('atlas-data.json?v=6').then(r=>r.ok?r.json():null).then(d=>{if(d&&Array.isArray(d.systems)){systems=d.systems;markers=Array.isArray(d.markers)?d.markers:[];markLegionCapitals();makeTerritoryTexture();buildList();refresh()}}).catch(()=>{});}window.addEventListener('resize',resize);
+async function initializeAtlas(){
+ makeData();
+ if(EDIT_MODE){
+  try{
+   const response=await fetch('../atlas-data.json?v='+Date.now(),{cache:'no-store'});
+   if(!response.ok)throw new Error('Не удалось загрузить опубликованный архив');
+   const published=await response.json();
+   if(!published||!Array.isArray(published.systems))throw new Error('Некорректный формат архива');
+   const remote=published.systems;
+   const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
+   if(saved&&Array.isArray(saved.systems)){
+    const localByName=new Map(saved.systems.map(sys=>[sys.name,sys]));
+    systems=remote.map(sys=>{
+     const local=localByName.get(sys.name);
+     if(!local)return sys;
+     localByName.delete(sys.name);
+     return {...sys,...local,fleet:sys.fleet??local.fleet};
+    });
+    localByName.forEach(sys=>systems.push(sys));
+    markers=Array.isArray(saved.markers)?saved.markers:(Array.isArray(published.markers)?published.markers:[]);
+   }else{
+    systems=remote;
+    markers=Array.isArray(published.markers)?published.markers:[];
+   }
+   toast('Опубликованный архив загружен: '+systems.length+' систем');
+  }catch(e){
+   try{
+    const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
+    if(saved&&Array.isArray(saved.systems)){systems=saved.systems;markers=Array.isArray(saved.markers)?saved.markers:[]}
+    else markers=[];
+   }catch(_){markers=[]}
+   toast('Архив GitHub недоступен — загружены локальные данные');
+  }
+ }else{
+  markers=[];
+  fetch('atlas-data.json?v='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{
+   if(d&&Array.isArray(d.systems)){systems=d.systems;markers=Array.isArray(d.markers)?d.markers:[];markLegionCapitals();makeTerritoryTexture();buildList();refresh()}
+  }).catch(()=>{});
+ }
+ markLegionCapitals();makeTerritoryTexture();buildList();resize();refresh();
+}
+initializeAtlas();
+
 </script></body></html>
