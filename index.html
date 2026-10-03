@@ -375,5 +375,22 @@ function markLegionCapitals(){
  });
 }
 
-makeData();if(EDIT_MODE){try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(saved&&Array.isArray(saved.systems)){systems=saved.systems;markers=Array.isArray(saved.markers)?saved.markers:[]}}catch(e){}}markLegionCapitals();makeTerritoryTexture();buildList();resize();refresh();if(!EDIT_MODE){fetch('atlas-data.json?v='+Date.now()).then(r=>r.ok?r.json():null).then(d=>{if(d&&Array.isArray(d.systems)){systems=d.systems;markers=Array.isArray(d.markers)?d.markers:[];markLegionCapitals();makeTerritoryTexture();buildList();refresh()}}).catch(()=>{});}window.addEventListener('resize',resize);
+async function initializeAtlas(){
+ makeData();
+ try{
+  const archiveUrl=(EDIT_MODE?'../':'')+'atlas-data.json?v='+Date.now();
+  const response=await fetch(archiveUrl,{cache:'no-store'});
+  if(!response.ok)throw new Error('Не удалось загрузить atlas-data.json');
+  const published=await response.json();
+  if(!published||!Array.isArray(published.systems))throw new Error('Некорректный формат atlas-data.json');
+  systems=published.systems;
+  markers=Array.isArray(published.markers)?published.markers:[];
+ }catch(e){
+  markers=[];
+  if(EDIT_MODE)toast('Не удалось загрузить опубликованный архив; показаны базовые данные');
+ }
+ markLegionCapitals();makeTerritoryTexture();buildList();resize();refresh();
+}
+initializeAtlas();
+window.addEventListener('resize',resize);
 </script></body></html>
