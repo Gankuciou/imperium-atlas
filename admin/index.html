@@ -404,6 +404,18 @@ async function initializeAtlas(){
   if(!published||!Array.isArray(published.systems))throw new Error('Некорректный формат atlas-data.json');
   systems=published.systems;
   markers=Array.isArray(published.markers)?published.markers:[];
+  // В админке восстанавливаем последний локально сохранённый рабочий архив.
+  // Игроковая карта продолжает читать только опубликованный atlas-data.json.
+  if(EDIT_MODE){
+   try{
+    const local=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
+    const localSystems=Array.isArray(local)?local:local&&local.systems;
+    if(Array.isArray(localSystems)&&localSystems.length){
+     systems=localSystems;
+     markers=Array.isArray(local.markers)?local.markers:[];
+    }
+   }catch(localError){console.warn('Локальный архив админки не загружен',localError)}
+  }
  }catch(e){
   markers=[];
   if(EDIT_MODE)toast('Не удалось загрузить опубликованный архив; показаны базовые данные');
