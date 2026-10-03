@@ -111,7 +111,7 @@ function makeData(){
  ];
  fixed.forEach(a=>systems.push({name:a[0],owner:a[1],x:a[2],y:a[3],type:a[4],desc:a[5],production:a[6],forces:a[7],fleet:a[8]}));
  // Число систем по легионам варьируется от 8 до 15, включая родной мир.
- const legionSystemCounts=[8,9,10,11,12,13,14,15,8,10,12,14,9,11,13,15,8,12];
+ const legionSystemCounts=[8,9,10,11,12,8,9,10,11,12,8,9,10,11,12,8,9,10];
  legions.forEach((legion,li)=>{
   const home=fixed.find(a=>a[1]===legion.id&&a[4]==='Мир легиона');
   const center=home?{x:home[2],y:home[3]}:{x:0,y:0};
