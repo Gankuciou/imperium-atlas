@@ -68,6 +68,7 @@ button{background:#211b13;border:1px solid #715832;color:#dec99c;padding:7px 9px
 <div class="wide"><label>СТОЛИЦА ЛЕГИОНА</label><select id="edCapitalOf"><option value="">Не является столицей</option></select></div>
 <div class="wide"><label>ТИП ПЛАНЕТЫ / СИСТЕМЫ</label><select id="edType"><option>Терра-класс</option><option>Мир-кузница</option><option>Мир-крепость</option><option>Агромир</option><option>Улей-мир</option><option>Шахтёрский мир</option><option>Мир-склеп</option><option>Священный мир</option><option>Джунглевый мир</option><option>Ледяной мир</option><option>Пустынный мир</option><option>Вулканический мир</option><option>Демонический мир</option><option>Необитаемый мир</option><option>Звёздная крепость</option><option>Административный мир</option><option>Океанический мир</option><option>Радиационный мир</option><option>Промышленный мир</option><option>Пограничный мир</option><option>Исследовательский мир</option></select></div>
 <div><label>КООРДИНАТА X</label><input id="edX" type="number" min="-1" max="1" step=".01"></div><div><label>КООРДИНАТА Y</label><input id="edY" type="number" min="-1" max="1" step=".01"></div>
+<div class="wide"><label>НАСЕЛЕНИЕ</label><textarea id="edPopulation" rows="2" placeholder="Например: 8,5 млрд жителей; оценка 12–15 млрд"></textarea></div>
 <div class="wide"><label>ПРОИЗВОДСТВО</label><textarea id="edProd" rows="2" placeholder="Например: 12 млн тонн стали / год; 4 млн единиц боеприпасов"></textarea></div>
 <div class="wide"><label>СИЛЫ (ГАРНИЗОН / АРМИИ / АСТАРТЕС)</label><textarea id="edForces" rows="2" placeholder="Например: 3 полка Имперской армии, 2 роты Астартес"></textarea></div>
 <div class="wide"><label>ФЛОТ</label><textarea id="edFleet" rows="2" placeholder="Например: 1 линкор, 4 крейсера, 12 эсминцев"></textarea></div>
@@ -290,15 +291,15 @@ function details(){
  const host=document.getElementById('info'),s=systems[selected];
  if(!s){
   host.innerHTML='<p class="muted">Выберите систему на карте или в реестре слева.</p>';
-  ['edName','edX','edY','edProd','edForces','edFleet','edDesc'].forEach(id=>document.getElementById(id).value='');
+  ['edName','edX','edY','edPopulation','edProd','edForces','edFleet','edDesc'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('edCapitalOf').value='';
   return;
  }
  const l=legions.find(x=>x.id===s.owner),own=owners.find(x=>x.id===s.owner);
  const capital=l&&s.capitalOf?`<div class="capital-note">✦ СТОЛИЧНЫЙ МИР ЛЕГИОНА ${s.capitalOf}<br><small>${s.capitalTitle||l.name}</small></div>`:
   (s.capitalOf?`<div class="capital-note">✦ СТОЛИЧНЫЙ МИР ЛЕГИОНА ${s.capitalOf}<br><small>${s.capitalTitle||''}</small></div>`:'');
- host.innerHTML=`<div class="seal"><div class="sig">${s.owner==='EMP'?'♛':l?l.sigil:'✠'}</div><div class="sysname">${s.name}</div><div class="muted">${own?own.name:s.owner}</div></div>${capital}<p>${s.desc||''}</p><div class="grid"><div class="cell"><b>ТИП МИРА</b>${s.type||'Не классифицирован'}</div><div class="cell"><b>ВЛАДЕЛЕЦ</b>${own?own.name:s.owner}</div><div class="cell"><b>ПРОИЗВОДСТВО</b>${s.production||'Не указано'}</div><div class="cell"><b>СИЛЫ</b>${s.forces||'Не указаны'}</div><div class="cell" style="grid-column:1/-1"><b>ФЛОТ</b>${s.fleet||'Не указан'}</div></div>`;
- const values={edName:s.name,edOwner:s.owner,edType:s.type||'Необитаемый мир',edX:s.x,edY:s.y,edProd:s.production,edForces:s.forces,edFleet:s.fleet,edDesc:s.desc,edCapitalOf:s.capitalOf||''};
+ host.innerHTML=`<div class="seal"><div class="sig">${s.owner==='EMP'?'♛':l?l.sigil:'✠'}</div><div class="sysname">${s.name}</div><div class="muted">${own?own.name:s.owner}</div></div>${capital}<p>${s.desc||''}</p><div class="grid"><div class="cell"><b>ТИП МИРА</b>${s.type||'Не классифицирован'}</div><div class="cell"><b>ВЛАДЕЛЕЦ</b>${own?own.name:s.owner}</div><div class="cell"><b>НАСЕЛЕНИЕ</b>${s.population||'Не указано'}</div><div class="cell"><b>ПРОИЗВОДСТВО</b>${s.production||'Не указано'}</div><div class="cell"><b>СИЛЫ</b>${s.forces||'Не указаны'}</div><div class="cell" style="grid-column:1/-1"><b>ФЛОТ</b>${s.fleet||'Не указан'}</div></div>`;
+ const values={edName:s.name,edOwner:s.owner,edType:s.type||'Необитаемый мир',edX:s.x,edY:s.y,edPopulation:s.population,edProd:s.production,edForces:s.forces,edFleet:s.fleet,edDesc:s.desc,edCapitalOf:s.capitalOf||''};
  Object.entries(values).forEach(([id,value])=>{const e=document.getElementById(id);if(e)e.value=value??''});
  buildSystemList();
 }
@@ -316,7 +317,7 @@ function apply(){
  }else{s.capitalOf=null;s.capitalTitle=null}
  s.name=n;s.owner=document.getElementById('edOwner').value;s.type=document.getElementById('edType').value;
  s.x=Math.max(-1,Math.min(1,+document.getElementById('edX').value||0));s.y=Math.max(-1,Math.min(1,+document.getElementById('edY').value||0));
- s.production=document.getElementById('edProd').value;s.forces=document.getElementById('edForces').value;s.fleet=document.getElementById('edFleet').value;s.desc=document.getElementById('edDesc').value;
+ s.population=document.getElementById('edPopulation').value;s.production=document.getElementById('edProd').value;s.forces=document.getElementById('edForces').value;s.fleet=document.getElementById('edFleet').value;s.desc=document.getElementById('edDesc').value;
  refresh();toast('Изменения системы применены. Нажмите «Сохранить» для записи в браузер.');
 }
 function add(){placementMode=!placementMode;markerMode=null;document.getElementById('add').classList.toggle('gold',placementMode);toast(placementMode?'Режим добавления: нажмите на нужное место карты':'Добавление системы отменено')}
@@ -349,7 +350,7 @@ canvas.addEventListener('pointermove',e=>{if(!activePointers.has(e.pointerId))re
 function endPointer(e){activePointers.delete(e.pointerId);if(activePointers.size<2)pinchStart=null;if(activePointers.size===0){drag=false;canvas.classList.remove('drag')}else{drag=false;moved=true}}
 canvas.addEventListener('pointerup',endPointer);canvas.addEventListener('pointercancel',endPointer);
 canvas.addEventListener('click',e=>{if(moved)return;let r=canvas.getBoundingClientRect(),screen={x:e.clientX-r.left,y:e.clientY-r.top},world=screenToWorld(screen);
- if(placementMode&&EDIT_MODE){const x=Math.max(-1,Math.min(1,(world.x-W/2)/(Math.min(W,H)*.44))),y=Math.max(-1,Math.min(1,(world.y-H/2)/(Math.min(W,H)*.44)));const name=prompt('Название новой звёздной системы:');if(name&&name.trim()){const owner=active&&owners.some(o=>o.id===active)?active:'EMP';systems.push({name:name.trim(),owner,x:+x.toFixed(3),y:+y.toFixed(3),type:'Необитаемый мир',production:'Не обследовано',forces:'Нет данных',fleet:'Нет данных',desc:'Новая система, добавленная картографом Империума.'});selected=systems.length-1;active=null;markLegionCapitals();buildList();refresh();toast('Система добавлена в указанном месте. Нажмите «Сохранить».')}placementMode=false;document.getElementById('add').classList.remove('gold');return}
+ if(placementMode&&EDIT_MODE){const x=Math.max(-1,Math.min(1,(world.x-W/2)/(Math.min(W,H)*.44))),y=Math.max(-1,Math.min(1,(world.y-H/2)/(Math.min(W,H)*.44)));const name=prompt('Название новой звёздной системы:');if(name&&name.trim()){const owner=active&&owners.some(o=>o.id===active)?active:'EMP';systems.push({name:name.trim(),owner,x:+x.toFixed(3),y:+y.toFixed(3),type:'Необитаемый мир',population:'Не обследовано',production:'Не обследовано',forces:'Нет данных',fleet:'Нет данных',desc:'Новая система, добавленная картографом Империума.'});selected=systems.length-1;active=null;markLegionCapitals();buildList();refresh();toast('Система добавлена в указанном месте. Нажмите «Сохранить».')}placementMode=false;document.getElementById('add').classList.remove('gold');return}
  if(markerMode){const x=(world.x-W/2)/(Math.min(W,H)*.44),y=(world.y-H/2)/(Math.min(W,H)*.44);const name=prompt(markerMode==='fleet'?'Название флота:':'Название битвы:');if(name&&name.trim()){const desc=prompt('Краткое описание / участники (необязательно):')||'';markers.push({type:markerMode,name:name.trim(),desc,x:+x.toFixed(3),y:+y.toFixed(3)});persistMarkers();toast(markerMode==='fleet'?'Флот нанесён на карту':'Битва отмечена на карте')}markerMode=null;document.getElementById('markFleet').classList.remove('gold');document.getElementById('markBattle').classList.remove('gold');draw();return}
  const markerHit=markers.findIndex(m=>{const q=p(m);return Math.hypot(q.x-world.x,q.y-world.y)<18/scale});if(markerHit>=0){const m=markers[markerHit];if(!EDIT_MODE){toast((m.type==='battle'?'Битва: ':'Флот: ')+m.name+(m.desc?' — '+m.desc:''));return}if(confirm(`${m.type==='battle'?'Битва':'Флот'}: ${m.name}${m.desc?'\n'+m.desc:''}\nУдалить отметку?`)){markers.splice(markerHit,1);persistMarkers();draw()}return}
  let best=20/scale,hit=-1;systems.forEach((s,i)=>{let q=p(s),d=Math.hypot(q.x-world.x,q.y-world.y);if(d<best){best=d;hit=i}});if(hit>=0){selectSystem(hit,false)}});
