@@ -72,19 +72,19 @@ button{background:#211b13;border:1px solid #715832;color:#dec99c;padding:7px 9px
 <div class="wide"><label>СИЛЫ (ГАРНИЗОН / АРМИИ / АСТАРТЕС)</label><textarea id="edForces" rows="2" placeholder="Например: 3 полка Имперской армии, 2 роты Астартес"></textarea></div>
 <div class="wide"><label>ФЛОТ</label><textarea id="edFleet" rows="2" placeholder="Например: 1 линкор, 4 крейсера, 12 эсминцев"></textarea></div>
 <div class="wide"><label>АРХИВНОЕ ОПИСАНИЕ</label><textarea id="edDesc" rows="3"></textarea></div>
-</div><div class="row"><button class="gold" id="apply">Применить изменения</button><button id="add">Новая система</button></div><div class="row"><button class="danger" id="del">Удалить</button><button id="duplicate">Дублировать</button></div>
+</div><div class="row"><button class="gold" id="apply">Применить изменения</button><button id="add">Новая система: выбрать место</button></div><div class="row"><button class="danger" id="del">Удалить</button><button id="duplicate">Дублировать</button></div>
 <p class="help">«Сохранить» записывает изменения только в этот браузер. Чтобы показать игрокам обновлённые системы, флоты и битвы: нажмите «Экспорт JSON», затем загрузите полученный файл atlas-data.json в корень репозитория GitHub, заменив прежний файл. Игровая карта прочитает опубликованный архив автоматически.</p></div>
 </aside></main>
 <script>
 const legions=[
-['I','Тёмные Ангелы','Лион Эль’Джонсон','#54765f','✠'],['III','Дети Императора','Фулгрим','#a66b9b','♜'],['IV','Железные Воины','Пертурабо','#9b8d72','⚒'],['V','Белые Шрамы','Джагатай-хан','#c4b9a0','☼'],['VI','Космические Волки','Леман Русс','#6f91a6','ᛟ'],['VII','Имперские Кулаки','Рогал Дорн','#c6a33e','✥'],['VIII','Повелители Ночи','Конрад Кёрз','#596a9b','☾'],['IX','Кровавые Ангелы','Сангвиний','#a74743','✦'],['X','Железные Руки','Феррус Манус','#8d9696','⚙'],['XII','Пожиратели Миров','Ангрон','#ad5542','⚔'],['XIII','Ультрамарины','Робут Жиллиман','#477bb0','Ω'],['XIV','Гвардия Смерти','Мортарион','#78845d','☣'],['XV','Тысяча Сынов','Магнус','#477d8c','◈'],['XVI','Лунные Волки','Хорус Луперкаль','#b7a77e','☀'],['XVII','Несущие Слово','Лоргар','#9c4548','†'],['XVIII','Саламандры','Вулкан','#4f895e','火'],['XIX','Гвардия Ворона','Корвус Коракс','#777d86','羽'],['XX','Альфа-Легион','Альфарий и Омегон','#4c9290','α']
+['I','Тёмные Ангелы','Лион Эль’Джонсон','#54765f','✠'],['III','Дети Императора','Фулгрим','#a66b9b','♜'],['IV','Железные Воины','Пертурабо','#9b8d72','⚒'],['V','Белые Шрамы','Джагатай-хан','#c4b9a0','☼'],['VI','Космические Волки','Леман Русс','#6f91a6','ᛟ'],['VII','Имперские Кулаки','Рогал Дорн','#c6a33e','✥'],['VIII','Повелители Ночи','Конрад Кёрз','#596a9b','☾'],['IX','Кровавые Ангелы','Сангвиний','#a74743','✦'],['X','Железные Руки','Феррус Манус','#8d9696','⚙'],['XII','Пожиратели Миров','Ангрон','#ad5542','⚔'],['XIII','Ультрамарины','Робут Жиллиман','#477bb0','Ω'],['XIV','Гвардия Смерти','Мортарион','#78845d','☣'],['XV','Тысяча Сынов','Магнус','#477d8c','◈'],['XVI','Сыны Хоруса','Хорус Луперкаль','#b7a77e','☀'],['XVII','Несущие Слово','Лоргар','#9c4548','†'],['XVIII','Саламандры','Вулкан','#4f895e','火'],['XIX','Гвардия Ворона','Корвус Коракс','#777d86','羽'],['XX','Альфа-Легион','Альфарий и Омегон','#4c9290','α']
 ].map(a=>({id:a[0],name:a[1],primarch:a[2],color:a[3],sigil:a[4]}));
 const owners=[{id:'EMP',name:'Император — Терра и Сол'},{id:'MECH',name:'Марсианский Механикум'},...legions.map(l=>({id:l.id,name:l.name})),{id:'XEN',name:'Неизведанные территории'}];
 const adj=['Инфернус','Санктус','Ауреус','Доминион','Серафикус','Морталис','Кредо','Этернус','Викториан','Солемнис','Империалис','Глориан','Мартириум','Реликтус','Триумфус','Экклезиарх','Астралис','Люминар','Кафедрал','Обскурус','Бенедиктус','Феррум','Калвариум','Сепулькрум','Крусис','Апокриф'];
 const nouns=['Терра','Примус','Секундус','Терциус','Мандат','Эдикт','Бастион','Предел','Реликварий','Кафедра','Синод','Завет','Триумф','Ковчег','Грааль','Маяк','Доминион','Санкция','Искупление','Светоч','Мартирий','Обет','Трон','Крепость','Паломничество','Венец','Сепулькра','Астра','Крусад','Аквила'];
 const types=['Терра-класс','Мир-кузница','Мир-крепость','Агромир','Улей-мир','Шахтёрский мир','Мир-склеп','Священный мир','Джунглевый мир','Ледяной мир','Пустынный мир','Вулканический мир','Необитаемый мир','Административный мир'];
 const descs=['Мир приведён к Имперскому согласию в ходе экспедиционной кампании.','На орбите обнаружены древние доки и следы человеческой колонизации.','Система служит узлом снабжения экспедиционных флотов.','В системе учреждён гарнизон Астартес и наблюдательный пост флота.','Местные храмы перестроены в соответствии с Имперской Истиной.','Сектор богат прометием, редкими металлами и пригодными для заселения мирами.'];
-let systems=[],markers=[],markerMode=null;const EDIT_MODE=document.body.classList.contains('editor');const STORAGE_KEY=EDIT_MODE?'imperiumAtlasAdminV6':'imperiumAtlasPlayerV6';
+let systems=[],markers=[],markerMode=null,placementMode=false;const EDIT_MODE=document.body.classList.contains('editor');const STORAGE_KEY=EDIT_MODE?'imperiumAtlasAdminV6':'imperiumAtlasPlayerV6';
 function rand(i){let x=Math.sin(i*127.1+311.7)*43758.5453;return x-Math.floor(x)}
 function makeData(){
  const fixed=[
@@ -104,7 +104,7 @@ function makeData(){
  ['Макрагг','XIII',.18,.27,'Мир легиона','Столица владений Ультрамара.','Многоотраслевое производство','Ультрамарины и оборонные силы','Флот XIII легиона'],
  ['Барбарус','XIV',-.12,.49,'Мир легиона','Родной мир Мортариона.','Химические и промышленные ресурсы','Гвардия Смерти','Флот XIV легиона'],
  ['Просперо','XV',.48,.3,'Мир легиона','Мир магистров и библиотек XV легиона.','Архивы, психические исследования','Тысяча Сынов','Флот XV легиона'],
- ['Хтония','XVI',.3,.02,'Мир легиона','Мир, связанный с ранней историей XVI легиона.','Горнодобыча и тяжёлая промышленность','Лунные Волки / Сыны Хоруса','Флот XVI легиона'],
+ ['Хтония','XVI',.3,.02,'Мир легиона','Мир, связанный с ранней историей XVI легиона.','Горнодобыча и тяжёлая промышленность','Сыны Хоруса / Сыны Хоруса','Флот XVI легиона'],
  ['Колхида','XVII',.5,-.38,'Мир легиона','Родной мир Лоргара.','Рукописные архивы и строительство','Несущие Слово','Флот XVII легиона'],
  ['Ноктюрн','XVIII',-.28,.48,'Мир легиона','Вулканический родной мир Вулкана.','Оружейное производство и редкие сплавы','Саламандры','Флот XVIII легиона'],
  ['Освобождение','XIX',-.72,.16,'Мир легиона','Родной мир XIX легиона.','Снабжение и лёгкая промышленность','Гвардия Ворона','Флот XIX легиона'],
@@ -318,7 +318,7 @@ function apply(){
  s.production=document.getElementById('edProd').value;s.forces=document.getElementById('edForces').value;s.fleet=document.getElementById('edFleet').value;s.desc=document.getElementById('edDesc').value;
  refresh();toast('Изменения системы применены. Нажмите «Сохранить» для записи в браузер.');
 }
-function add(){systems.push({name:'Новый Санктус Терра',owner:'EMP',x:+(Math.random()*.8-.4).toFixed(3),y:+(Math.random()*.8-.4).toFixed(3),type:'Необитаемый мир',production:'Не обследовано',forces:'Нет данных',fleet:'Нет данных',desc:'Новая система, внесённая картографом Империума.'});selected=systems.length-1;active=null;buildList();refresh();toast('Система добавлена')}
+function add(){placementMode=!placementMode;markerMode=null;document.getElementById('add').classList.toggle('gold',placementMode);toast(placementMode?'Режим добавления: нажмите на нужное место карты':'Добавление системы отменено')}
 function persistMarkers(){if(!EDIT_MODE)return;localStorage.setItem(STORAGE_KEY,JSON.stringify({systems,markers}))}
 function save(){if(!EDIT_MODE)return;localStorage.setItem(STORAGE_KEY,JSON.stringify({systems,markers}));toast('Карта и отметки сохранены в этом браузере')}
 function load(){if(!EDIT_MODE)return;try{let x=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(!x)throw 0;systems=Array.isArray(x)?x:x.systems;markers=Array.isArray(x.markers)?x.markers:[];if(!Array.isArray(systems))throw 0;selected=-1;refresh();toast('Карта и отметки загружены')}catch(e){toast('Сохранение не найдено')}}
@@ -348,6 +348,7 @@ canvas.addEventListener('pointermove',e=>{if(!activePointers.has(e.pointerId))re
 function endPointer(e){activePointers.delete(e.pointerId);if(activePointers.size<2)pinchStart=null;if(activePointers.size===0){drag=false;canvas.classList.remove('drag')}else{drag=false;moved=true}}
 canvas.addEventListener('pointerup',endPointer);canvas.addEventListener('pointercancel',endPointer);
 canvas.addEventListener('click',e=>{if(moved)return;let r=canvas.getBoundingClientRect(),screen={x:e.clientX-r.left,y:e.clientY-r.top},world=screenToWorld(screen);
+ if(placementMode&&EDIT_MODE){const x=Math.max(-1,Math.min(1,(world.x-W/2)/(Math.min(W,H)*.44))),y=Math.max(-1,Math.min(1,(world.y-H/2)/(Math.min(W,H)*.44)));const name=prompt('Название новой звёздной системы:');if(name&&name.trim()){const owner=active&&owners.some(o=>o.id===active)?active:'EMP';systems.push({name:name.trim(),owner,x:+x.toFixed(3),y:+y.toFixed(3),type:'Необитаемый мир',production:'Не обследовано',forces:'Нет данных',fleet:'Нет данных',desc:'Новая система, добавленная картографом Империума.'});selected=systems.length-1;active=null;markLegionCapitals();buildList();refresh();toast('Система добавлена в указанном месте. Нажмите «Сохранить».')}placementMode=false;document.getElementById('add').classList.remove('gold');return}
  if(markerMode){const x=(world.x-W/2)/(Math.min(W,H)*.44),y=(world.y-H/2)/(Math.min(W,H)*.44);const name=prompt(markerMode==='fleet'?'Название флота:':'Название битвы:');if(name&&name.trim()){const desc=prompt('Краткое описание / участники (необязательно):')||'';markers.push({type:markerMode,name:name.trim(),desc,x:+x.toFixed(3),y:+y.toFixed(3)});persistMarkers();toast(markerMode==='fleet'?'Флот нанесён на карту':'Битва отмечена на карте')}markerMode=null;document.getElementById('markFleet').classList.remove('gold');document.getElementById('markBattle').classList.remove('gold');draw();return}
  const markerHit=markers.findIndex(m=>{const q=p(m);return Math.hypot(q.x-world.x,q.y-world.y)<18/scale});if(markerHit>=0){const m=markers[markerHit];if(!EDIT_MODE){toast((m.type==='battle'?'Битва: ':'Флот: ')+m.name+(m.desc?' — '+m.desc:''));return}if(confirm(`${m.type==='battle'?'Битва':'Флот'}: ${m.name}${m.desc?'\n'+m.desc:''}\nУдалить отметку?`)){markers.splice(markerHit,1);persistMarkers();draw()}return}
  let best=20/scale,hit=-1;systems.forEach((s,i)=>{let q=p(s),d=Math.hypot(q.x-world.x,q.y-world.y);if(d<best){best=d;hit=i}});if(hit>=0){selectSystem(hit,false)}});
@@ -377,7 +378,7 @@ const legionCapitals={
  XIII:{aliases:['Макрагг'],title:'Макрагг — центр Ультрамара и родной мир Ультрамаринов'},
  XIV:{aliases:['Барбарус'],title:'Барбарус — родной мир Гвардии Смерти'},
  XV:{aliases:['Просперо'],title:'Просперо — родной мир Тысячи Сынов'},
- XVI:{aliases:['Хтония','Чтония'],title:'Хтония — родной мир Лунных Волков'},
+ XVI:{aliases:['Хтония','Чтония'],title:'Хтония — родной мир Сынов Хоруса'},
  XVII:{aliases:['Колхида'],title:'Колхида — родной мир Несущих Слово'},
  XVIII:{aliases:['Ноктюрн'],title:'Ноктюрн — родной мир Саламандр'},
  XIX:{aliases:['Освобождение'],title:'Освобождение (Deliverance) — родной мир Гвардии Ворона'},
