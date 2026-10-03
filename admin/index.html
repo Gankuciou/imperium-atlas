@@ -74,7 +74,7 @@ button{background:#211b13;border:1px solid #715832;color:#dec99c;padding:7px 9px
 <div class="wide"><label>ФЛОТ</label><textarea id="edFleet" rows="2" placeholder="Например: 1 линкор, 4 крейсера, 12 эсминцев"></textarea></div>
 <div class="wide"><label>АРХИВНОЕ ОПИСАНИЕ</label><textarea id="edDesc" rows="3"></textarea></div>
 </div><div class="row"><button class="gold" id="apply">Применить изменения</button><button id="add">Новая система: выбрать место</button></div><div class="row"><button class="danger" id="del">Удалить выбранную систему</button><button id="duplicate">Дублировать</button></div>
-<p class="help">«Сохранить» записывает изменения в этом браузере. «Опубликовать карту игрокам» отправляет текущий архив систем, сил и флотов прямо в atlas-data.json репозитория. При открытии админская карта загружает опубликованный архив; локальные правки сохраняются поверх него, а данные флотов синхронизируются с опубликованной версией.</p></div>
+<p class="help">«Сохранить» записывает изменения в этом браузере, но не меняет карту игроков. Для синхронизации нажмите «Опубликовать карту игрокам»: текущие системы, силы, флоты и отметки попадут в общий atlas-data.json. При следующем открытии обе страницы загружают именно этот архив. Локальные сохранения можно загрузить вручную кнопкой «Загрузить»; до публикации они видны только в редакторе.</p></div>
 </aside></main>
 <script>
 const legions=[
@@ -395,46 +395,22 @@ function markLegionCapitals(){
 }
 
 async function initializeAtlas(){
+ async function initializeAtlas(){
  makeData();
- if(EDIT_MODE){
-  try{
-   const response=await fetch('../atlas-data.json?v='+Date.now(),{cache:'no-store'});
-   if(!response.ok)throw new Error('Не удалось загрузить опубликованный архив');
-   const published=await response.json();
-   if(!published||!Array.isArray(published.systems))throw new Error('Некорректный формат архива');
-   const remote=published.systems;
-   const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
-   if(saved&&Array.isArray(saved.systems)){
-    const localByName=new Map(saved.systems.map(sys=>[sys.name,sys]));
-    systems=remote.map(sys=>{
-     const local=localByName.get(sys.name);
-     if(!local)return sys;
-     localByName.delete(sys.name);
-     return {...sys,...local,fleet:sys.fleet??local.fleet};
-    });
-    localByName.forEach(sys=>systems.push(sys));
-    markers=Array.isArray(saved.markers)?saved.markers:(Array.isArray(published.markers)?published.markers:[]);
-   }else{
-    systems=remote;
-    markers=Array.isArray(published.markers)?published.markers:[];
-   }
-   toast('Опубликованный архив загружен: '+systems.length+' систем');
-  }catch(e){
-   try{
-    const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
-    if(saved&&Array.isArray(saved.systems)){systems=saved.systems;markers=Array.isArray(saved.markers)?saved.markers:[]}
-    else markers=[];
-   }catch(_){markers=[]}
-   toast('Архив GitHub недоступен — загружены локальные данные');
-  }
- }else{
+ try{
+  const archiveUrl=(EDIT_MODE?'../':'')+'atlas-data.json?v='+Date.now();
+  const response=await fetch(archiveUrl,{cache:'no-store'});
+  if(!response.ok)throw new Error('Не удалось загрузить atlas-data.json');
+  const published=await response.json();
+  if(!published||!Array.isArray(published.systems))throw new Error('Некорректный формат atlas-data.json');
+  systems=published.systems;
+  markers=Array.isArray(published.markers)?published.markers:[];
+ }catch(e){
   markers=[];
-  fetch('atlas-data.json?v='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{
-   if(d&&Array.isArray(d.systems)){systems=d.systems;markers=Array.isArray(d.markers)?d.markers:[];markLegionCapitals();makeTerritoryTexture();buildList();refresh()}
-  }).catch(()=>{});
+  if(EDIT_MODE)toast('Не удалось загрузить опубликованный архив; показаны базовые данные');
  }
  markLegionCapitals();makeTerritoryTexture();buildList();resize();refresh();
 }
 initializeAtlas();
-
+window.addEventListener('resize',resize);
 </script></body></html>
