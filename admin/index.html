@@ -413,6 +413,12 @@ async function initializeAtlas(){
     if(Array.isArray(localSystems)&&localSystems.length){
      systems=localSystems;
      markers=Array.isArray(local.markers)?local.markers:[];
+     // Обновляем население из опубликованного архива даже при наличии старой локальной копии.
+     const publishedByName=new Map(published.systems.map(sys=>[sys.name,sys]));
+     systems.forEach(sys=>{
+      const current=publishedByName.get(sys.name);
+      if(current&&current.population!==undefined)sys.population=current.population;
+     });
     }
    }catch(localError){console.warn('Локальный архив админки не загружен',localError)}
   }
